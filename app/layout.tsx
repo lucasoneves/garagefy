@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 // @ts-expect-error: allow side-effect import of global CSS without type declarations
 import "./globals.css";
+import MainHeader from "@/components/MainHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        {children}
+        <div className="container max-w-2xl m-auto dark:bg-transparent p-4">
+          <MainHeader />
+          {children}
+        </div>
       </body>
     </html>
   );
