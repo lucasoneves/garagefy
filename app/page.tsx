@@ -1,29 +1,19 @@
-import IconOdometer from "@/components/Icons/Odometer";
+import MainCard from "@/components/MainCard";
+import { IoAlertCircleOutline } from "react-icons/io5";
+import { IoArrowForward } from "react-icons/io5";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen font-sans ">
       <main className="w-full">
-        <div
-          className="car-info justify-end p-4 rounded-2xl flex flex-col gap-4 min-h-60"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(10,15,16,0.6), rgba(0,1,1,0.6)), url('/images/tcross.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="flex gap-2 justify-between items-center">
-            <span className="font-bold text-xl">Volkswagen TCross</span>
+        <MainCard />
+        <div className="flex gap-4 items-center mt-4 py-4 px-4 bg-[#2A2210] border border-[#a16920] rounded-2xl">
+          <IoAlertCircleOutline size={22} color="#e4870e" />
+          <div className="flex-1 flex items-start flex-col">
+            <h2 className="text-md font-bold text-[#e4870e]">Maintenance Alert</h2>
+            <span className="text-xs text-[#e4870e]">Falta 800km para a troca de óleo</span>
           </div>
-          <div className="text-sm text-[#CBD5E1] flex gap-2 items-center justify-between">
-            <span className="flex gap-2 items-center">
-              <IconOdometer />55.200 KM
-            </span>
-            <span className="rounded-full py-1 bg-[#04395d] text-xs px-3 font-bold">
-              Active
-            </span>
-          </div>
+          <IoArrowForward size={22} color="#e4870e" />
         </div>
       </main>
     </div>
