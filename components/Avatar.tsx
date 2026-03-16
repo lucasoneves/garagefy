@@ -11,9 +11,6 @@ export default function Avatar({ src, alt, username }: { src: string; alt: strin
         className="rounded-lg"
         priority
       />
-      <span className="is-online absolute bottom-0 bg-[#121212] p-1 rounded-full translate-x-8 translate-y-1">
-        <span className="dot rounded-full w-2 h-2 bg-green-500 block" />
-      </span>
       <span className="text-white text-sm">{username}</span>
     </div>
   );

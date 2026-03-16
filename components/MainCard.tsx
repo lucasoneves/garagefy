@@ -19,7 +19,7 @@ export default function MainCard() {
           <IconOdometer />
           55.200 KM
         </span>
-        <span className="rounded-full py-1 bg-[#04395d] text-xs px-3 font-bold">
+        <span className="rounded-full py-1 bg-[#00993b] text-xs px-3 font-bold">
           Active
         </span>
       </div>
