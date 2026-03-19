@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { IoArrowBackOutline } from "react-icons/io5";
-import { DatePicker } from "@heroui/date-picker";
+import { Button } from "@/components/ui/button"
 
 export default function AddFuel() {
   return (
@@ -88,12 +88,17 @@ export default function AddFuel() {
         <label htmlFor="date-time" className="flex flex-col gap-2 relative">
           <strong className="text-sm text-zinc-400">Data</strong>
           <input
+            
             type="date"
             id="date-time"
             name="date-time"
             className="bg-[#121212] h-12 border border-zinc-600 rounded-full text-zinc-400 py-1 px-3 pl-6 text-sm"
           />
         </label>
+        <div className="submit-form flex gap-4 justify-end">
+          <Button type="submit" className="p-6 text-black bg-zinc-400 rounded-full cursor-pointer max-w-28">Limpar</Button>
+        <Button type="submit" className="p-6 text-white bg-[#007BFF] rounded-full cursor-pointer max-w-28">Salvar</Button>
+        </div>
       </form>
     </div>
   );

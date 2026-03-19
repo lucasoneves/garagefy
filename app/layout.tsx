@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 // @ts-expect-error: allow side-effect import of global CSS without type declarations
 import "./globals.css";
 import MainHeader from "@/components/MainHeader";
 import { Providers } from "./provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -28,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        className={`${inter.variable} antialiased dark`}
       >
         <Providers>
           <div className="container max-w-2xl m-auto dark:bg-transparent p-4">
