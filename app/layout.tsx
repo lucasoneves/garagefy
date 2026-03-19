@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 // @ts-expect-error: allow side-effect import of global CSS without type declarations
 import "./globals.css";
 import MainHeader from "@/components/MainHeader";
+import { Providers } from "./provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,10 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <div className="container max-w-2xl m-auto dark:bg-transparent p-4">
-          <MainHeader />
-          {children}
-        </div>
+        <Providers>
+          <div className="container max-w-2xl m-auto dark:bg-transparent p-4">
+            <MainHeader />
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );
