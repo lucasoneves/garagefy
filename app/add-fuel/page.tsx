@@ -1,105 +1,181 @@
-import Link from "next/link";
-import { IoArrowBackOutline } from "react-icons/io5";
-import { Button } from "@/components/ui/button"
+'use client';
 
-export default function AddFuel() {
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { 
+  HiArrowLeft, 
+  HiOutlineCalendar, 
+  HiChevronDown 
+} from 'react-icons/hi';
+import { 
+  BsFuelPumpFill, 
+  BsDropletFill, 
+  BsSpeedometer2 
+} from 'react-icons/bs';
+import { LuSave, LuWaves } from 'react-icons/lu';
+
+const AddFuelPage = () => {
+  const [date, setDate] = useState('10/27/2023');
+
+  // Máscara simples para data (DD/MM/YYYY)
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 8) value = value.slice(0, 8);
+    
+    if (value.length > 4) {
+      value = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`;
+    } else if (value.length > 2) {
+      value = `${value.slice(0, 2)}/${value.slice(2)}`;
+    }
+    setDate(value);
+  };
+
   return (
-    <div className="flex flex-col gap-4">
-      <header className="flex gap-2 items-center">
-        <Link href="/" className="flex items-center absolute">
-          <IoArrowBackOutline size={20} />
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
+      {/* Header com Navegação para Home */}
+      <header className="flex items-center justify-between mb-8">
+        <Link 
+          href="/" 
+          className="p-2 hover:bg-zinc-800 rounded-full transition-colors"
+          aria-label="Back to Home"
+        >
+          <HiArrowLeft size={24} />
         </Link>
-        <h1 className="text-lg font-bold flex-1 text-center">Add Fuel</h1>
+        <h1 className="text-xl font-bold">Add Fuel</h1>
+        <div className="w-10"></div>
       </header>
 
-      <form action="" className="flex flex-col gap-6">
-        <label htmlFor="fuel-amount" className="flex flex-col gap-2 relative">
-          <strong className="text-sm text-zinc-400">Posto de gasolina</strong>
-          <input
-            placeholder="Shell, Ipiranga..."
-            type="text"
-            id="fuel-amount"
-            name="fuel-amount"
-            className="bg-[#121212] h-12 border border-zinc-600 rounded-full text-zinc-400 py-1 px-3 pl-6 text-sm"
-          />
-        </label>
-        <label htmlFor="fuel-type" className="flex flex-col gap-2 relative">
-          <strong className="text-sm text-zinc-400">Tipo de combustível</strong>
-          <select
-            id="fuel-type"
-            name="fuel-type"
-            className="bg-[#121212] h-12 border border-zinc-600 rounded-full text-zinc-400 py-1 px-3 pl-6 text-sm appearance-none"
-          >
-            <option defaultValue="Selecione o tipo">Selecione o tipo</option>
-            <option value="gasoline">Gasolina</option>
-            <option value="ethanol">Etanol</option>
-            <option value="diesel">Diesel</option>
-          </select>
-        </label>
-
-        <div className="grid grid-cols-2 gap-4">
-          <label htmlFor="total-cost" className="flex flex-col gap-2 relative">
-            <strong className="text-sm text-zinc-400">Valor total</strong>
-            <input
-              placeholder="R$ 0,00"
-              type="number"
-              id="total-cost"
-              name="total-cost"
-              className="bg-[#121212] h-12 border border-zinc-600 rounded-full text-zinc-400 py-1 px-3 pl-6 text-sm"
+      <form className="space-y-6">
+        
+        {/* Gas Station */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-zinc-500 ml-1">Gas Station</label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+              <BsFuelPumpFill size={20} />
+            </span>
+            <input 
+              type="text" 
+              placeholder="Shell, Exxon, BP..." 
+              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
             />
-          </label>
-
-          <label
-            htmlFor="price-per-liter"
-            className="flex flex-col gap-2 relative"
-          >
-            <strong className="text-sm text-zinc-400">Preço/Litro</strong>
-            <input
-              placeholder="R$ 0,00"
-              type="number"
-              id="price-per-liter"
-              name="price-per-liter"
-              className="bg-[#121212] h-12 border border-zinc-600 rounded-full text-zinc-400 py-1 px-3 pl-6 text-sm"
-            />
-          </label>
+          </div>
         </div>
-        <label htmlFor="total-liters" className="flex flex-col gap-2 relative">
-          <strong className="text-sm text-zinc-400">Total de litros</strong>
-          <input
-            placeholder="0.00"
-            type="number"
-            id="total-liters"
-            name="total-liters"
-            className="bg-[#121212] h-12 border border-zinc-600 rounded-full text-zinc-400 py-1 px-3 pl-6 text-sm"
-          />
-        </label>
 
-        <label htmlFor="current-km" className="flex flex-col gap-2 relative">
-          <strong className="text-sm text-zinc-400">Km atual</strong>
-          <input
-            placeholder="0.00"
-            type="number"
-            id="current-km"
-            name="current-km"
-            className="bg-[#121212] h-12 border border-zinc-600 rounded-full text-zinc-400 py-1 px-3 pl-6 text-sm"
-          />
-        </label>
+        {/* Fuel Type - Agora como Select Nativo Customizado */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-zinc-500 ml-1">Fuel Type</label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500 pointer-events-none">
+              <LuWaves size={20} />
+            </span>
+            <select 
+              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-10 focus:outline-none focus:border-zinc-500 transition-colors appearance-none text-zinc-300"
+              defaultValue="gasoline_premium"
+            >
+              <option value="gasoline_regular">Gasoline (Regular)</option>
+              <option value="gasoline_premium">Gasoline (Premium)</option>
+              <option value="ethanol">Ethanol</option>
+              <option value="diesel">Diesel</option>
+              <option value="cng">CNG (Natural Gas)</option>
+            </select>
+            <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500 pointer-events-none">
+              <HiChevronDown size={20} />
+            </span>
+          </div>
+        </div>
 
-        <label htmlFor="date-time" className="flex flex-col gap-2 relative">
-          <strong className="text-sm text-zinc-400">Data</strong>
-          <input
-            
-            type="date"
-            id="date-time"
-            name="date-time"
-            className="bg-[#121212] h-12 border border-zinc-600 rounded-full text-zinc-400 py-1 px-3 pl-6 text-sm"
-          />
-        </label>
-        <div className="submit-form flex gap-4 justify-end">
-          <Button type="submit" className="p-6 text-black bg-zinc-400 rounded-full cursor-pointer max-w-28">Limpar</Button>
-        <Button type="submit" className="p-6 text-white bg-[#007BFF] rounded-full cursor-pointer max-w-28">Salvar</Button>
+        {/* Grid de Custos */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-zinc-500 ml-1">Total Cost</label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">$</span>
+              <input 
+                type="text" 
+                placeholder="0.00" 
+                className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-8 pr-4 focus:outline-none focus:border-zinc-500"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-zinc-500 ml-1">Price / L</label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">$</span>
+              <input 
+                type="text" 
+                placeholder="0.00" 
+                className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-8 pr-4 focus:outline-none focus:border-zinc-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Liters */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-zinc-500 ml-1">Liters</label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+              <BsDropletFill size={18} />
+            </span>
+            <input 
+              type="text" 
+              placeholder="0.00" 
+              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:border-zinc-500"
+            />
+            <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500 font-bold text-xs uppercase tracking-tighter">L</span>
+          </div>
+        </div>
+
+        {/* Odometer */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-zinc-500 ml-1">Current Odometer</label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+              <BsSpeedometer2 size={20} />
+            </span>
+            <input 
+              type="text" 
+              placeholder="45,230" 
+              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:border-zinc-500"
+            />
+            <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500 font-bold text-xs uppercase tracking-tighter">KM</span>
+          </div>
+        </div>
+
+        {/* Date com Máscara */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-zinc-500 ml-1">Date</label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
+              <HiOutlineCalendar size={22} />
+            </span>
+            <input 
+              type="text" 
+              value={date}
+              onChange={handleDateChange}
+              placeholder="DD/MM/YYYY" 
+              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:border-zinc-500"
+            />
+            <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500">
+              <HiOutlineCalendar size={20} />
+            </span>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="pt-6">
+          <button 
+            type="submit" 
+            className="w-full bg-[#007BFF] hover:bg-blue-600 text-white font-bold py-4 rounded-3xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20"
+          >
+            <LuSave size={20} />
+            Save Fuel Entry
+          </button>
         </div>
       </form>
     </div>
   );
-}
+};
+
+export default AddFuelPage;

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 // @ts-expect-error: allow side-effect import of global CSS without type declarations
 import "./globals.css";
 import MainHeader from "@/components/MainHeader";
+import BottomNav from "@/components/BottomNav";
 import { Providers } from "./provider";
 
 const inter = Inter({
@@ -29,6 +30,7 @@ export default function RootLayout({
           <div className="container max-w-2xl m-auto dark:bg-transparent p-4">
             <MainHeader />
             {children}
+            <BottomNav />
           </div>
         </Providers>
       </body>

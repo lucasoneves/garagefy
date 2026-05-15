@@ -1,18 +1,26 @@
-
-import { IoAlertCircleOutline } from "react-icons/io5";
-import { IoArrowForward } from "react-icons/io5";
+import Link from "next/link";
+import { HiOutlineChevronRight, HiOutlineBell } from "react-icons/hi";
 
 export default function MaintenanceAlert() {
   return (
-    <div className="flex gap-4 items-center mt-6 py-4 px-4 bg-[#2A2210] border border-[#a16920] rounded-2xl">
-      <IoAlertCircleOutline size={22} color="#e4870e" />
-      <div className="flex-1 flex items-start flex-col">
-        <h2 className="text-md font-bold text-[#e4870e]">Maintenance Alert</h2>
-        <span className="text-xs text-[#e4870e]">
-          Falta 800km para a troca de óleo
-        </span>
+    <Link
+      href="/maintenance"
+      className="flex items-center justify-between bg-[#1a1608] border border-amber-900/30 rounded-[2rem] p-5 mb-8"
+    >
+      <div className="flex items-center gap-4">
+        <div className="bg-amber-500/10 p-3 rounded-2xl text-amber-500">
+          <HiOutlineBell size={24} />
+        </div>
+        <div>
+          <h4 className="font-bold text-amber-500 text-sm">
+            Maintenance Alert
+          </h4>
+          <p className="text-amber-500/70 text-xs">
+            Oil change needed in 800 KM
+          </p>
+        </div>
       </div>
-      <IoArrowForward size={22} color="#e4870e" />
-    </div>
+      <HiOutlineChevronRight className="text-amber-500/50" />
+    </Link>
   );
 }

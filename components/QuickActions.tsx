@@ -1,19 +1,31 @@
-import IconFuel from "./Icons/Fuel";
-import IconService from "./Icons/Service";
-import BoxAction from "./BoxAction";
+import Link from "next/link";
+import { BsFuelPump, BsGearWideConnected } from "react-icons/bs";
 
 export default function QuickActions() {
   return (
-    <div className="mt-6">
-      <h2 className="uppercase text-sm text-[#B0B0B0] mb-2">Quick Actions</h2>
-      <div className="flex gap-8">
-        <BoxAction text="Add Fuel" path="/add-fuel">
-          <IconFuel fill="#007BFF" />
-        </BoxAction>
-        <BoxAction text="Add Service" path="/add-service">
-          <IconService fill="#C084FC" />
-        </BoxAction>
-      </div>
-    </div>
+    <>
+    <h3 className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-4 ml-2">
+        Quick Actions
+      </h3>
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <Link
+          href="/add-fuel"
+          className="bg-zinc-900/40 border border-zinc-800/50 rounded-[2rem] p-6 flex flex-col items-center gap-3 hover:bg-zinc-800/40 transition-all"
+        >
+          <div className="text-blue-500 mb-2">
+            <BsFuelPump size={28} />
+          </div>
+          <span className="font-bold text-sm">Add Fuel</span>
+        </Link>
+        <Link
+          href="/add-service"
+          className="bg-zinc-900/40 border border-zinc-800/50 rounded-[2rem] p-6 flex flex-col items-center gap-3 hover:bg-zinc-800/40 transition-all"
+        >
+          <div className="text-purple-500 mb-2">
+            <BsGearWideConnected size={28} />
+          </div>
+          <span className="font-bold text-sm">Service</span>
+        </Link>
+      </div></>
   );
 }
