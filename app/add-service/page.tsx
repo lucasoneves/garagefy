@@ -55,7 +55,7 @@ const AddServicePage = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
       {/* Top Navigation */}
       <header className="flex items-center justify-between mb-10">
-        <button onClick={handleBack} type="button" className="p-1 hover:bg-zinc-800 rounded-full transition-colors">
+        <button onClick={handleBack} type="button" className=" hover:bg-zinc-800 rounded-full transition-colors">
           <HiArrowLeft size={24} />
         </button>
         <h1 className="text-lg font-semibold">Add Service</h1>

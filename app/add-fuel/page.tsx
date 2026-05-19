@@ -36,7 +36,7 @@ const AddFuelPage = () => {
       <header className="flex items-center justify-between mb-8">
         <Link 
           href="/" 
-          className="p-2 hover:bg-zinc-800 rounded-full transition-colors"
+          className=" hover:bg-zinc-800 rounded-full transition-colors"
           aria-label="Back to Home"
         >
           <HiArrowLeft size={24} />
