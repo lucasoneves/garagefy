@@ -64,7 +64,7 @@ const AddServicePage = () => {
         </Link>
       </header>
 
-      <main className="space-y-8">
+      <main className="space-y-8 pb-40">
         {/* Title Section */}
         <div>
           <span className="text-blue-500 text-xs font-bold uppercase tracking-widest">

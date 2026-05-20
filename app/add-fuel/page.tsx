@@ -45,7 +45,7 @@ const AddFuelPage = () => {
         <div className="w-10"></div>
       </header>
 
-      <form className="space-y-6">
+      <form className="space-y-6 pb-40">
         
         {/* Gas Station */}
         <div className="space-y-2">
