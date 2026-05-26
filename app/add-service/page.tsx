@@ -14,15 +14,12 @@ import {
   MdOutlineSpeed 
 } from 'react-icons/md';
 import { LuSave } from 'react-icons/lu';
+import PageNavHeader from '@/components/PageNavHeader';
+import SaveButton from '@/components/SaveButton';
 
 const AddServicePage = () => {
-  const router = useRouter();
   const [serviceType, setServiceType] = useState<string>('');
   const [date, setDate] = useState<string>('');
-
-  const handleBack = () => {
-    router.push('/');
-  };
 
   const formatDateInput = (value: string) => {
     const digits = value.replace(/\D/g, '').slice(0, 8); // MMDDYYYY
@@ -53,16 +50,7 @@ const AddServicePage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      {/* Top Navigation */}
-      <header className="flex items-center justify-between mb-10">
-        <button onClick={handleBack} type="button" className=" hover:bg-zinc-800 rounded-full transition-colors">
-          <HiArrowLeft size={24} />
-        </button>
-        <h1 className="text-lg font-semibold">Add Service</h1>
-        <Link href="/" className="text-blue-500 font-medium hover:text-blue-400">
-          Cancel
-        </Link>
-      </header>
+      <PageNavHeader pageTitle="Add Service" />
 
       <main className="space-y-8 pb-40">
         {/* Title Section */}
@@ -169,16 +157,7 @@ const AddServicePage = () => {
             />
           </div>
 
-          {/* Save Button */}
-          <div className="pt-2">
-            <button 
-              type="submit" 
-              className="w-full bg-[#007BFF] hover:bg-blue-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-900/20"
-            >
-              <LuSave size={20} />
-              Save Service
-            </button>
-          </div>
+          <SaveButton title="Save Service" handleSave={() => {}} />
         </form>
 
         {/* Info Card */}

@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { 
-  HiArrowLeft, 
   HiOutlineCalendar, 
   HiChevronDown 
 } from 'react-icons/hi';
@@ -12,7 +10,9 @@ import {
   BsDropletFill, 
   BsSpeedometer2 
 } from 'react-icons/bs';
-import { LuSave, LuWaves } from 'react-icons/lu';
+import { LuWaves } from 'react-icons/lu';
+import PageNavHeader from '@/components/PageNavHeader';
+import SaveButton from '@/components/SaveButton';
 
 const AddFuelPage = () => {
   const [date, setDate] = useState('10/27/2023');
@@ -32,18 +32,7 @@ const AddFuelPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      {/* Header com Navegação para Home */}
-      <header className="flex items-center justify-between mb-8">
-        <Link 
-          href="/" 
-          className=" hover:bg-zinc-800 rounded-full transition-colors"
-          aria-label="Back to Home"
-        >
-          <HiArrowLeft size={24} />
-        </Link>
-        <h1 className="text-xl font-bold">Add Fuel</h1>
-        <div className="w-10"></div>
-      </header>
+      <PageNavHeader pageTitle="Add Fuel" />
 
       <form className="space-y-6 pb-40">
         
@@ -163,16 +152,7 @@ const AddFuelPage = () => {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="pt-6">
-          <button 
-            type="submit" 
-            className="w-full bg-[#007BFF] hover:bg-blue-600 text-white font-bold py-4 rounded-3xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20"
-          >
-            <LuSave size={20} />
-            Save Fuel Entry
-          </button>
-        </div>
+        <SaveButton title="Save Fuel Entry" handleSave={() => {}} />
       </form>
     </div>
   );

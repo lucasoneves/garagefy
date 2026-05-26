@@ -1,27 +1,16 @@
 "use client";
-
-import React from "react";
-import Link from "next/link";
-import { HiArrowLeft, HiPlus } from "react-icons/hi";
 import { MdDirectionsCar } from "react-icons/md";
+import PageNavHeader from "@/components/PageNavHeader";
+import PageContainer from "@/components/PageContainer";
+import { HiPlus } from "react-icons/hi";
+import SaveButton from "@/components/SaveButton";
 
 const AddVehiclePage = () => {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      {/* Header com Navegação para Profile */}
-      <header className="flex items-center justify-between mb-8">
-        <Link
-          href="/profile"
-          className=" hover:bg-zinc-800 rounded-full transition-colors"
-          aria-label="Back to Profile"
-        >
-          <HiArrowLeft size={24} />
-        </Link>
-        <h1 className="text-xl font-bold">Add Vehicle</h1>
-        <div className="w-10"></div> {/* Spacer para centralizar */}
-      </header>
+    <PageContainer>
+      <PageNavHeader pageTitle='Add Vehicle'/>
 
-      <form className="max-w-md mx-auto space-y-6">
+      <form className="mx-auto space-y-6">
         {/* Upload Vehicle Photo Section */}
         <div className="relative group cursor-pointer">
           <div className="w-full h-48 border-2 border-dashed border-zinc-800 rounded-[2rem] flex flex-col items-center justify-center gap-4 bg-zinc-900/10 hover:bg-zinc-900/30 transition-all">
@@ -107,17 +96,9 @@ const AddVehiclePage = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="pt-8">
-          <button
-            type="submit"
-            className="w-full bg-[#007BFF] hover:bg-blue-600 text-white font-bold py-5 rounded-[2rem] flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20"
-          >
-            <HiPlus size={20} />
-            Add to My Garage
-          </button>
-        </div>
+          <SaveButton title="Add to My Garage" handleSave={() => {}} />
       </form>
-    </div>
+    </PageContainer>
   );
 };
 

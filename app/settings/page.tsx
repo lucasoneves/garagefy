@@ -14,21 +14,15 @@ import {
   HiOutlineLogout
 } from 'react-icons/hi';
 import { MdDirectionsCar } from 'react-icons/md';
+import PageNavHeader from '@/components/PageNavHeader';
 
 const ProfilePage = () => {
   const [notifications, setNotifications] = useState(true);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      
-      {/* Header */}
-      <header className="flex items-center justify-center mb-8">
-        <Link href="/" className=" hover:bg-zinc-900 rounded-full transition-colors">
-          <HiArrowLeft size={24} />
-        </Link>
-        <h1 className="text-xl font-bold flex-1 text-center">Profile</h1>
-        <div className='w-10'></div>
-      </header>
+
+      <PageNavHeader pageTitle="Settings" cancelable={false} />
 
       {/* Profile Info */}
       <section className="flex flex-col items-center mb-10">
@@ -56,9 +50,6 @@ const ProfilePage = () => {
         
         {/* Active Vehicle Card */}
         <div className="bg-[#121212] border border-zinc-800/50 rounded-[2rem] p-5 mb-4 flex items-center gap-4">
-          <div className="bg-zinc-800/50 p-4 rounded-2xl text-zinc-400">
-            <MdDirectionsCar size={32} />
-          </div>
           <div className="flex-grow">
             <div className="flex justify-between items-center mb-1">
               <h4 className="font-bold text-lg leading-tight">Volkswagen Gol 1.6</h4>
@@ -67,7 +58,6 @@ const ProfilePage = () => {
               </span>
             </div>
             <div className="flex items-center gap-1 text-zinc-500 text-sm">
-              <span className="text-xs">⏱</span>
               <span>55.200 KM</span>
             </div>
           </div>

@@ -23,7 +23,7 @@ export default function MainHeader() {
       </div>
       {/* Rota para Profile */}
       <Link
-        href="/profile"
+        href="/settings"
         className="p-3 bg-zinc-900/50 rounded-2xl hover:bg-zinc-800 transition-colors"
       >
         <HiOutlineCog size={24} className="text-zinc-300" />
