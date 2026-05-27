@@ -1,12 +1,11 @@
 import { SaveIcon } from "lucide-react";
 
-const SaveButton = ({
-  title,
-  handleSave,
-}: {
+interface SaveButtonProps {
   title: string;
-  handleSave: () => void;
-}) => {
+  handleSave?: React.MouseEventHandler<HTMLButtonElement>;
+}
+
+const SaveButton = ({ title, handleSave }: SaveButtonProps) => {
   return (
     <div className="pt-6">
       <button

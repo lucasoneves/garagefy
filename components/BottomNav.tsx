@@ -3,9 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AiFillLayout, AiOutlineUser } from "react-icons/ai";
+import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { BiWalletAlt } from "react-icons/bi";
 import { MdOutlineDirectionsCar } from "react-icons/md";
+import { LuNotebook } from "react-icons/lu";
+
 
 const BottomNav = () => {
   const pathname = usePathname() ?? "/";
@@ -20,7 +22,7 @@ const BottomNav = () => {
     <nav className="fixed w-full bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-zinc-800/50 p-4 flex justify-between items-center z-30">
       <div className="max-w-2xl w-full justify-between m-auto flex px-4">
         <NavItem
-          icon={<AiFillLayout size={24} />}
+          icon={<MdOutlineSpaceDashboard size={24} />}
           label="Dashboard"
           path="/"
           active={isActiveFor("/")}
@@ -38,7 +40,7 @@ const BottomNav = () => {
           active={isActiveFor("/expenses")}
         />
         <NavItem
-          icon={<AiOutlineUser size={24} />}
+          icon={<LuNotebook size={24} />}
           label="Logbook"
           path="/logbook"
           active={isActiveFor("/logbook")}

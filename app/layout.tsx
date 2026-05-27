@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-// @ts-expect-error: allow side-effect import of global CSS without type declarations
 import "./globals.css";
 import MainHeader from "@/components/MainHeader";
 import BottomNav from "@/components/BottomNav";

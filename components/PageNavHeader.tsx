@@ -4,22 +4,24 @@ import Link from "next/link";
 const PageNavHeader = ({
   pageTitle,
   cancelable = true,
+  lastPage = "/"
 }: {
   pageTitle: string;
   cancelable?: boolean;
+  lastPage?: string;
 }) => {
   return (
     <header className="flex items-center flex-col justify-between mb-10">
       <div className="flex justify-between w-full">
         <Link
-          href={"/"}
+          href={lastPage}
           className=" hover:bg-zinc-800 rounded-full transition-colors"
         >
           <HiArrowLeft size={24} />
         </Link>
         {cancelable ? (
           <Link
-            href={"/"}
+            href={lastPage}
             className="text-blue-500 font-medium hover:text-blue-400"
           >
             Cancel

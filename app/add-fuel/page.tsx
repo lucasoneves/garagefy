@@ -6,60 +6,57 @@ import {
   HiChevronDown 
 } from 'react-icons/hi';
 import { 
-  BsFuelPumpFill, 
   BsDropletFill, 
-  BsSpeedometer2 
+  BsSpeedometer2,
+  BsFuelPumpFill
 } from 'react-icons/bs';
 import { LuWaves } from 'react-icons/lu';
 import PageNavHeader from '@/components/PageNavHeader';
 import SaveButton from '@/components/SaveButton';
+import MainInput from '@/components/MainInput';
 
 const AddFuelPage = () => {
   const [date, setDate] = useState('10/27/2023');
 
   // Máscara simples para data (DD/MM/YYYY)
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 8) value = value.slice(0, 8);
+    const date = e.target.value.replace(/\D/g, '');
     
-    if (value.length > 4) {
-      value = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`;
-    } else if (value.length > 2) {
-      value = `${value.slice(0, 2)}/${value.slice(2)}`;
-    }
-    setDate(value);
+    setDate(date);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Lógica para salvar os dados no backend
+    console.log({ date });
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans p-6">
       <PageNavHeader pageTitle="Add Fuel" />
 
-      <form className="space-y-6 pb-40">
+      {/* Engatilhando o onSubmit direto no form usando o comportamento nativo */}
+      <form onSubmit={handleSubmit} className="space-y-6 pb-40 mt-6">
         
         {/* Gas Station */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-500 ml-1">Gas Station</label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
-              <BsFuelPumpFill size={20} />
-            </span>
-            <input 
-              type="text" 
-              placeholder="Shell, Exxon, BP..." 
-              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
-            />
-          </div>
-        </div>
+        <MainInput
+          label="Gas Station"
+          placeholder="Shell, Exxon, BP..."
+          icon={BsFuelPumpFill}
+          required
+        />
 
-        {/* Fuel Type - Agora como Select Nativo Customizado */}
+        {/* Fuel Type - Mantido estrutural para suportar a tag select do HTML */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-500 ml-1">Fuel Type</label>
+          <label className="text-[10px] font-bold text-zinc-400 tracking-widest uppercase block pl-1">
+            Fuel Type
+          </label>
           <div className="relative">
             <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500 pointer-events-none">
               <LuWaves size={20} />
             </span>
             <select 
-              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-10 focus:outline-none focus:border-zinc-500 transition-colors appearance-none text-zinc-300"
+              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-10 focus:outline-none focus:border-zinc-500 transition-colors appearance-none text-zinc-300 text-sm"
               defaultValue="gasoline_premium"
             >
               <option value="gasoline_regular">Gasoline (Regular)</option>
@@ -76,83 +73,66 @@ const AddFuelPage = () => {
 
         {/* Grid de Custos */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-500 ml-1">Total Cost</label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">$</span>
-              <input 
-                type="text" 
-                placeholder="0.00" 
-                className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-8 pr-4 focus:outline-none focus:border-zinc-500"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-500 ml-1">Price / L</label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">$</span>
-              <input 
-                type="text" 
-                placeholder="0.00" 
-                className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-8 pr-4 focus:outline-none focus:border-zinc-500"
-              />
-            </div>
-          </div>
+          <MainInput
+            label="Total Cost"
+            placeholder="0.00"
+            // Retorna o caractere de moeda estilizado injetado no espaço do ícone
+            icon={() => <span className="text-zinc-500 text-base font-medium">$</span>}
+            required
+          />
+          <MainInput
+            label="Price / L"
+            placeholder="0.00"
+            icon={() => <span className="text-zinc-500 text-base font-medium">$</span>}
+            required
+          />
         </div>
 
         {/* Liters */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-500 ml-1">Liters</label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
-              <BsDropletFill size={18} />
-            </span>
-            <input 
-              type="text" 
-              placeholder="0.00" 
-              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:border-zinc-500"
-            />
-            <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500 font-bold text-xs uppercase tracking-tighter">L</span>
-          </div>
+        <div className="relative w-full">
+          <MainInput
+            label="Liters"
+            placeholder="0.00"
+            icon={BsDropletFill}
+            required
+          />
+          {/* Sufixo de Unidade flutuante à direita */}
+          <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
+            L
+          </span>
         </div>
 
         {/* Odometer */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-500 ml-1">Current Odometer</label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
-              <BsSpeedometer2 size={20} />
-            </span>
-            <input 
-              type="text" 
-              placeholder="45,230" 
-              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:border-zinc-500"
-            />
-            <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500 font-bold text-xs uppercase tracking-tighter">KM</span>
-          </div>
+        <div className="relative w-full">
+          <MainInput
+            label="Current Odometer"
+            placeholder="45,230"
+            icon={BsSpeedometer2}
+            required
+          />
+          <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
+            KM
+          </span>
         </div>
 
         {/* Date com Máscara */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-500 ml-1">Date</label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500">
-              <HiOutlineCalendar size={22} />
-            </span>
-            <input 
-              type="text" 
-              value={date}
-              onChange={handleDateChange}
-              placeholder="DD/MM/YYYY" 
-              className="w-full bg-[#1a1a1a]/40 border border-zinc-800/60 rounded-2xl py-4 pl-12 pr-12 focus:outline-none focus:border-zinc-500"
-            />
-            <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500">
-              <HiOutlineCalendar size={20} />
-            </span>
-          </div>
+        <div className="relative w-full">
+          <MainInput
+            label="Date"
+            type='date'
+            value={date}
+            onChange={handleDateChange}
+            placeholder="DD/MM/YYYY" 
+            maxLength={10}
+            required
+          />
+          <span className="absolute bottom-4 right-5 text-zinc-600 pointer-events-none">
+            <HiOutlineCalendar size={20} />
+          </span>
         </div>
 
-        <SaveButton title="Save Fuel Entry" handleSave={() => {}} />
+        {/* Botão semântico limpo delegando a ação diretamente para o formulário pai */}
+        <SaveButton title="Save Fuel Entry" />
       </form>
     </div>
   );

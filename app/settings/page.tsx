@@ -1,11 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
-  HiArrowLeft, 
-  HiOutlineCog, 
   HiOutlinePencil,
   HiOutlineBell,
   HiOutlineLockClosed,
@@ -13,14 +11,13 @@ import {
   HiOutlineChevronRight,
   HiOutlineLogout
 } from 'react-icons/hi';
-import { MdDirectionsCar } from 'react-icons/md';
 import PageNavHeader from '@/components/PageNavHeader';
 
 const ProfilePage = () => {
   const [notifications, setNotifications] = useState(true);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-20">
 
       <PageNavHeader pageTitle="Settings" cancelable={false} />
 
@@ -45,7 +42,7 @@ const ProfilePage = () => {
       </section>
 
       {/* My Vehicles Section */}
-      <section className="mb-8">
+      <section className="mb-8 px-1">
         <h3 className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-4 ml-2">My Vehicles</h3>
         
         {/* Active Vehicle Card */}
@@ -71,6 +68,17 @@ const ProfilePage = () => {
           <span className="text-xl">+</span>
           <span className="font-bold text-sm">Add Another Vehicle</span>
         </Link>
+
+        {/* Link: See All Vehicles adicionado logo abaixo da lista */}
+        <div className="mt-4 text-center">
+          <Link
+            href="/my-garage"
+            className="inline-flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 transition-colors py-2 px-4"
+          >
+            <span>See All Vehicles</span>
+            <span className="text-xs">→</span>
+          </Link>
+        </div>
       </section>
 
       {/* App Settings Section */}
@@ -95,12 +103,15 @@ const ProfilePage = () => {
           </div>
 
           {/* Security Link */}
-          <Link href="/security" className="flex items-center justify-between p-5 border-b border-zinc-800/50 hover:bg-zinc-800/20 transition-colors">
+          <Link href="/settings/privacy" className="flex items-center justify-between p-5 border-b border-zinc-800/50 hover:bg-zinc-800/20 transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-zinc-800/50 p-2 rounded-xl text-zinc-300">
                 <HiOutlineLockClosed size={22} />
               </div>
               <span className="font-bold">Security</span>
+              <span className="ml-auto text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                Privacy
+              </span>
             </div>
             <HiOutlineChevronRight size={20} className="text-zinc-600" />
           </Link>
