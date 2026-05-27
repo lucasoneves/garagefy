@@ -16,7 +16,7 @@ import {
 import { LuSave } from "react-icons/lu";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
-import MainInput from "@/components/MainInput";
+import MainInput from "@/components/ui/MainInput";
 
 const AddServicePage = () => {
   const [serviceType, setServiceType] = useState<string>("");

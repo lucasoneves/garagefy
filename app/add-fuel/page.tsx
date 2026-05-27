@@ -13,7 +13,7 @@ import {
 import { LuWaves } from 'react-icons/lu';
 import PageNavHeader from '@/components/PageNavHeader';
 import SaveButton from '@/components/SaveButton';
-import MainInput from '@/components/MainInput';
+import MainInput from '@/components/ui/MainInput';
 
 const AddFuelPage = () => {
   const [date, setDate] = useState('10/27/2023');
