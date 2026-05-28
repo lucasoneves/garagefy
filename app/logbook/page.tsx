@@ -26,24 +26,6 @@ const initialEntries = [
       "Front tires looking a bit soft after the long trip to the coast. Need to calibrate for...",
     bgType: "standard",
   },
-  {
-    id: 3,
-    category: "OBSERVATION",
-    date: "May 12",
-    title: "Oil Level Inspection",
-    description:
-      "Checked dipstick this morning. Level is halfway between min and max. Color looks...",
-    bgType: "standard",
-  },
-  {
-    id: 4,
-    category: "MAINTENANCE",
-    date: "May 05",
-    title: "New Air Filter Installed",
-    description:
-      "Replaced OEM filter with high-performance variant. Immediate improvement in throttle...",
-    bgType: "standard", // Indica que este card possui a imagem de fundo do painel
-  },
 ];
 
 const filters = ["ALL", "REMINDERS"];

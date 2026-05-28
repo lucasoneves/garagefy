@@ -15,7 +15,7 @@ const MainInput = ({
   ...props
 }: InputProps) => {
   return (
-      <>
+      <div className="flex flex-col gap-1 flex-1">
         {label && (
           <label className="text-[10px] font-bold text-zinc-400 tracking-widest uppercase block pl-1">
             {label}
@@ -36,7 +36,7 @@ const MainInput = ({
             } ${className}`}
           />
         </div>
-      </>
+      </div>
   );
 };
 
