@@ -24,7 +24,7 @@ const AddFuelPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans p-6">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
       <PageNavHeader pageTitle="Add Fuel" />
 
       {/* Engatilhando o onSubmit direto no form usando o comportamento nativo */}
@@ -88,7 +88,6 @@ const AddFuelPage = () => {
           </span>
         </div>
 
-        {/* Date com Máscara */}
         <div className="space-y-2 w-full relative">
           <MainInput
             label="Date"

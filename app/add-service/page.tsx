@@ -1,25 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import {
-  HiArrowLeft,
-  HiOutlineCalendar,
-  HiOutlineInformationCircle,
-} from "react-icons/hi";
-import {
-  MdOutlineStorefront,
-  MdOutlinePayments,
-  MdOutlineSpeed,
-} from "react-icons/md";
-import { LuSave } from "react-icons/lu";
+import { HiOutlineCalendar, HiOutlineInformationCircle } from "react-icons/hi";
+import { MdOutlineStorefront, MdOutlineSpeed } from "react-icons/md";
+import { FiTool } from "react-icons/fi";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
+import MainTextArea from "@/components/ui/MainTextArea";
 
 const AddServicePage = () => {
-  const [serviceType, setServiceType] = useState<string>("");
   const [date, setDate] = useState<string>("");
 
   const formatDateInput = (value: string) => {
@@ -49,84 +39,97 @@ const AddServicePage = () => {
     setDate(formatDateInput(e.target.value));
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Lógica para enviar o payload de serviço para a API do Garagefy
+    console.log({ date });
+  };
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans p-6">
       <PageNavHeader pageTitle="Add Service" />
 
-      <main className="space-y-8 pb-40">
+      <main className="space-y-8 pb-40 mt-6">
         {/* Title Section */}
         <div>
-          <span className="text-blue-500 text-xs font-bold uppercase tracking-widest">
+          <span className="text-blue-500 text-[10px] font-black uppercase tracking-widest block">
             New Entry
           </span>
-          <h2 className="text-4xl font-bold mt-1">Log Maintenance</h2>
+          <h2 className="text-4xl font-black mt-1 uppercase font-mono tracking-tight">
+            Log Maintenance
+          </h2>
         </div>
 
-        <form className="space-y-6">
+        {/* Centralizando a submissão com o comportamento semântico nativo */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          
+          {/* Service Type */}
+          <MainInput
+            label="Service Type"
+            type="text"
+            placeholder="Maintenance, Car Wash..."
+            required
+          />
 
-          <div className="space-y-2 w-full">
-            <MainInput label="Service Type" type="text" placeholder="Maintenance, Car Wash..." />
-          </div>
+          {/* Provider / Workshop */}
+          <MainInput
+            label="Provider / Workshop"
+            type="text"
+            placeholder="Garage or Shop Name"
+            required
+          />
 
-          <div className="space-y-2 w-full">
-            <MainInput
-              type="text"
-              label="Provider / Workshop"
-              placeholder="Garage or Shop Name"/>
-          </div>
-
-          <div className="space-y-2 w-full">
+          {/* Total Cost */}
+          <div className="w-full relative">
             <MainInput
               label="Total Cost"
               type="text"
               placeholder="0.00"
+              
+              required
             />
           </div>
 
-          <div className="space-y-2 w-full">
+          {/* Current Odometer */}
+          <div className="w-full relative">
             <MainInput
               label="Current Odometer"
               type="text"
               placeholder="0"
+              required
             />
+            <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
+              KM
+            </span>
           </div>
 
-          <div className="space-y-2 w-full">
+          {/* Service Date com Máscara e Ícone Duplo */}
+          <div className="w-full relative">
             <MainInput
               label="Service Date"
-              type="date"
-              placeholder="mm/dd/yyyy"
+              type="text"
+              value={date}
+              onChange={handleDateChange}
+              placeholder="DD/MM/YYYY"
+              maxLength={10}
+              required
             />
+            <span className="absolute bottom-4 right-5 text-zinc-600 pointer-events-none">
+              <HiOutlineCalendar size={20} />
+            </span>
           </div>
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase ml-1">
-              Notes
-            </label>
-            <textarea
-              placeholder="Describe the service performed..."
-              rows={4}
-              className="w-full bg-zinc-900/40 border border-zinc-800/60 rounded-2xl py-4 px-4 focus:outline-none focus:border-zinc-600 resize-none placeholder:text-zinc-600"
-            />
-          </div>
+          {/* Notes - Refatorado para o componente MainTextArea */}
+          <MainTextArea
+            label="Notes"
+            placeholder="Describe the service performed..."
+            rows={5}
+            required
+          />
 
-          <SaveButton title="Save Service" handleSave={() => {}} />
+          {/* Botão semântico limpo delegando a ação diretamente para o formulário pai */}
+          <SaveButton title="Save Service" />
         </form>
-
-        {/* Info Card */}
-        <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-2xl p-5 flex gap-4">
-          <div className="mt-1">
-            <HiOutlineInformationCircle size={24} className="text-orange-500" />
-          </div>
-          <div className="space-y-1">
-            <h4 className="text-sm font-bold">Data Syncing</h4>
-            <p className="text-xs text-zinc-500 leading-relaxed">
-              This record will be automatically synced to your vehicle's history
-              and impact your maintenance schedule analytics.
-            </p>
-          </div>
-        </div>
       </main>
     </div>
   );
