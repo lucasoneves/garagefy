@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import useSWR from "swr";
 import { BiPlus, BiTrash, BiFile, BiTimeFive } from "react-icons/bi";
 import PageNavHeader from "@/components/PageNavHeader";
 import PageDescription from "@/components/ui/PageDescription";
@@ -26,32 +27,24 @@ const filterOptions: FilterOption[] = [
 
 const MOCK_VEHICLE_ID = "c303282d-f2e6-48ec-a34d-16be2e68407a";
 
+// Fetcher simples utilizando o fetch nativo do JS
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error("Erro ao carregar os dados do servidor.");
+    return res.json();
+  });
+
 const LogbookListPage = () => {
   const [activeFilter, setActiveFilter] = useState("all");
-  const [entries, setEntries] = useState<LogbookEntry[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Função para buscar os dados na API em Go aplicando o query param do FilterTab
-  const fetchEntries = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/vehicles/${MOCK_VEHICLE_ID}/logbook?category=${activeFilter}`,
-      );
-      if (!response.ok) throw new Error("Erro ao carregar registros");
-      const data = await response.json();
-      setEntries(data || []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeFilter]);
-
-  // Carrega ou recarrega sempre que o filtro ativo mudar
-  useEffect(() => {
-    fetchEntries();
-  }, [fetchEntries]);
+  // O SWR gerencia automaticamente o estado de loading, erros e atualiza quando o activeFilter muda
+  const apiUrl = `http://localhost:8080/api/vehicles/${MOCK_VEHICLE_ID}/logbook?category=${activeFilter}`;
+  const {
+    data: entries = [],
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<LogbookEntry[]>(apiUrl, fetcher);
 
   // Função para Deletar um registro (DELETE)
   const handleDelete = async (id: string) => {
@@ -64,8 +57,8 @@ const LogbookListPage = () => {
       );
 
       if (response.ok) {
-        // Atualiza o estado local removendo o item sem precisar recarregar a página inteira
-        setEntries((prev) => prev.filter((entry) => entry.id !== id));
+        // Alerta o SWR para atualizar o cache local instantaneamente
+        mutate();
       } else {
         alert("Erro ao deletar o registro.");
       }
@@ -104,9 +97,13 @@ const LogbookListPage = () => {
 
       {/* Listagem Dinâmica */}
       <div className="mt-8 space-y-4">
-        {loading ? (
+        {isLoading ? (
           <p className="text-sm text-zinc-500 font-medium text-center py-10">
             Loading entries...
+          </p>
+        ) : error ? (
+          <p className="text-sm text-red-400 font-medium text-center py-10">
+            Failed to load logbook entries.
           </p>
         ) : entries.length === 0 ? (
           <p className="text-sm text-zinc-500 font-medium text-center py-10">
@@ -168,8 +165,15 @@ const LogbookListPage = () => {
                   </span>
                 )}
 
-                {/* Botão de Exclusão */}
-                <div className="flex gap-2">
+                {/* Botão de Exclusão e Edição */}
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/logbook/edit/${entry.id}`}
+                    className="text-zinc-500 hover:text-blue-400 p-2 rounded-xl hover:bg-blue-500/5 border border-transparent hover:border-blue-500/10 transition-all text-xs font-bold"
+                    title="Edit entry"
+                  >
+                    Editar
+                  </Link>
                   <button
                     type="button"
                     onClick={() => handleDelete(entry.id)}
@@ -178,13 +182,6 @@ const LogbookListPage = () => {
                   >
                     <BiTrash size={16} />
                   </button>
-                  <Link
-                    href={`/logbook/edit/${entry.id}`}
-                    className="text-zinc-500 hover:text-blue-400 p-2 rounded-xl hover:bg-blue-500/5 border border-transparent hover:border-blue-500/10 transition-all text-xs font-bold"
-                    title="Edit entry"
-                  >
-                    Editar
-                  </Link>
                 </div>
               </div>
             </div>
