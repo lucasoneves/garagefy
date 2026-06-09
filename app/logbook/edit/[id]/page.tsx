@@ -18,11 +18,12 @@ const categoryOptions: FilterOption[] = [
   { value: "To-do", label: "To-do" },
 ];
 
-const MOCK_VEHICLE_ID = "c303282d-f2e6-48ec-a34d-16be2e68407a";
-
 const EditLogbookEntryPage = () => {
   const router = useRouter();
   const { id } = useParams(); // Captura o ID do registro vindo da URL da rota
+
+  // Estado dinâmico para substituir o MOCK_VEHICLE_ID antigo
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
 
   const [category, setCategory] = useState<Category>("Observation");
   const [title, setTitle] = useState("");
@@ -35,12 +36,25 @@ const EditLogbookEntryPage = () => {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Carrega os dados antigos do registro para preencher o formulário
+  // 1. Carrega o ID do veículo ativo selecionado na Garagem
+  useEffect(() => {
+    const savedVehicleId = localStorage.getItem("@garagefy:active_vehicle_id");
+    if (!savedVehicleId) {
+      alert("Nenhum veículo ativo selecionado. Escolha um carro na Garagem primeiro.");
+      router.push("/my-garage");
+    } else {
+      setVehicleId(savedVehicleId);
+    }
+  }, [router]);
+
+  // 2. Carrega os dados antigos do registro para preencher o formulário baseado no veículo ativo
   useEffect(() => {
     const loadEntryData = async () => {
+      if (!vehicleId || !id) return;
+
       try {
         const response = await fetch(
-          `http://localhost:8080/api/vehicles/${MOCK_VEHICLE_ID}/logbook/${id}`
+          `http://localhost:8080/api/vehicles/${vehicleId}/logbook/${id}`
         );
         if (!response.ok) throw new Error("Registro não encontrado");
         
@@ -61,8 +75,8 @@ const EditLogbookEntryPage = () => {
       }
     };
 
-    if (id) loadEntryData();
-  }, [id, router]);
+    loadEntryData();
+  }, [id, vehicleId, router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -99,7 +113,7 @@ const EditLogbookEntryPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting || !vehicleId) return;
 
     setIsSubmitting(true);
 
@@ -113,9 +127,9 @@ const EditLogbookEntryPage = () => {
         formData.append("file", selectedFile);
       }
 
-      // Requisição PUT atualizando o ID específico
+      // Requisição PUT atualizando o ID específico sob a árvore do veículo dinâmico
       const response = await fetch(
-        `http://localhost:8080/api/vehicles/${MOCK_VEHICLE_ID}/logbook/${id}`,
+        `http://localhost:8080/api/vehicles/${vehicleId}/logbook/${id}`,
         {
           method: "PUT",
           body: formData,
@@ -133,10 +147,11 @@ const EditLogbookEntryPage = () => {
     }
   };
 
-  if (loading) {
+  // Trava a renderização dos inputs enquanto os estados globais do veículo e do registro carregam
+  if (loading || !vehicleId) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-        <p className="text-sm text-zinc-500 text-center py-20">Loading entry data...</p>
+      <div className="min-h-screen bg-[#0a0a0a] text-white font-sans flex items-center justify-center">
+        <p className="text-sm text-zinc-500 text-center animate-pulse">Loading entry data...</p>
       </div>
     );
   }

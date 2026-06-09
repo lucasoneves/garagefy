@@ -1,28 +1,27 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BiCamera as CameraIcon, BiTrash, BiFile } from "react-icons/bi";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
-import MainTextArea from "@/components/ui/MainTextArea";
 import FilterTab, { FilterOption } from "@/components/ui/FilterTab";
+import MainTextArea from "@/components/ui/MainTextArea";
 import PageDescription from "@/components/ui/PageDescription";
 
 type Category = "Observation" | "Reminder" | "To-do";
 
-const categoryOptions: FilterOption[] = [
+const AddLogbookEntryPage = () => {
+  const router = useRouter();
+  const categoryOptions: FilterOption[] = [
   { value: "Observation", label: "Observation" },
   { value: "Reminder", label: "Reminder" },
   { value: "To-do", label: "To-do" },
 ];
-
-// ID temporário simulando o veículo selecionado no ecossistema Garagefy
-const MOCK_VEHICLE_ID = "c303282d-f2e6-48ec-a34d-16be2e68407a";
-
-const AddLogbookEntryPage = () => {
-  const router = useRouter();
+  // Estado dinâmico para substituir o MOCK_VEHICLE_ID antigo
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
+  
   const [category, setCategory] = useState<Category>("Observation");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -33,6 +32,17 @@ const AddLogbookEntryPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 1. Busca dinamicamente o UUID do carro ativo no carregamento do componente
+  useEffect(() => {
+    const savedVehicleId = localStorage.getItem("@garagefy:active_vehicle_id");
+    if (!savedVehicleId) {
+      alert("Nenhum veículo ativo selecionado. Escolha um carro na Garagem primeiro.");
+      router.push("/my-garage");
+    } else {
+      setVehicleId(savedVehicleId);
+    }
+  }, [router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,7 +76,7 @@ const AddLogbookEntryPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting || !vehicleId) return;
 
     setIsSubmitting(true);
 
@@ -81,7 +91,8 @@ const AddLogbookEntryPage = () => {
         formData.append("file", selectedFile);
       }
 
-      const response = await fetch(`http://localhost:8080/api/vehicles/${MOCK_VEHICLE_ID}/logbook`, {
+      // 2. Transmissão batendo na rota dinâmica injetando o vehicleId real
+      const response = await fetch(`http://localhost:8080/api/vehicles/${vehicleId}/logbook`, {
         method: "POST",
         body: formData, // O próprio navegador configura o Content-Type correto com o boundary
       });
@@ -104,6 +115,15 @@ const AddLogbookEntryPage = () => {
     }
   };
 
+  // Trava a renderização do formulário se o ID ainda não estiver na memória
+  if (!vehicleId) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center font-sans">
+        <p className="text-zinc-500 text-sm animate-pulse">Verificando garagem...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pb-32 font-sans selection:bg-blue-500/30">
       <PageNavHeader pageTitle="New Entry" lastPage="/logbook" />
@@ -118,17 +138,13 @@ const AddLogbookEntryPage = () => {
         className="bg-[#121212] border border-zinc-900/60 rounded-[2.5rem] mt-10 p-6 space-y-6"
       >
         {/* Seletor de Categoria */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold text-zinc-400 tracking-widest uppercase block pl-1">
-            Category
-          </label>
-          <FilterTab
+        <FilterTab
             options={categoryOptions}
             selectedValue={category}
             onChange={(value) => setCategory(value as Category)}
             size="small"
           />
-        </div>
+        
 
         {/* Campo de Entrada: Title */}
         <MainInput
@@ -148,7 +164,7 @@ const AddLogbookEntryPage = () => {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Write your observation here..."
           rows={5}
-          className="min-h-[140px]"
+          className="min-h-35"
           required
           disabled={isSubmitting}
         />

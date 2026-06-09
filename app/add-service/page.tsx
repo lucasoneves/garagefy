@@ -50,16 +50,6 @@ const AddServicePage = () => {
       <PageNavHeader pageTitle="Add Service" />
 
       <main className="space-y-8 pb-40 mt-6">
-        {/* Title Section */}
-        <div>
-          <span className="text-blue-500 text-[10px] font-black uppercase tracking-widest block">
-            New Entry
-          </span>
-          <h2 className="text-4xl font-black mt-1 uppercase font-mono tracking-tight">
-            Log Maintenance
-          </h2>
-        </div>
-
         {/* Centralizando a submissão com o comportamento semântico nativo */}
         <form onSubmit={handleSubmit} className="space-y-6">
           

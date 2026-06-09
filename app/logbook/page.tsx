@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { BiPlus, BiTrash, BiFile, BiTimeFive } from "react-icons/bi";
 import PageNavHeader from "@/components/PageNavHeader";
@@ -25,8 +26,6 @@ const filterOptions: FilterOption[] = [
   { value: "To-do", label: "To-dos" },
 ];
 
-const MOCK_VEHICLE_ID = "c303282d-f2e6-48ec-a34d-16be2e68407a";
-
 // Fetcher simples utilizando o fetch nativo do JS
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -35,10 +34,39 @@ const fetcher = (url: string) =>
   });
 
 const LogbookListPage = () => {
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState("all");
+  
+  // Estado dinâmico para substituir o MOCK_VEHICLE_ID antigo
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
 
-  // O SWR gerencia automaticamente o estado de loading, erros e atualiza quando o activeFilter muda
-  const apiUrl = `http://localhost:8080/api/vehicles/${MOCK_VEHICLE_ID}/logbook?category=${activeFilter}`;
+  // 1. Carrega o ID do veículo ativo selecionado na Garagem
+  // 1. Carrega o ID do veículo ativo selecionado na Garagem com segurança
+  useEffect(() => {
+    const savedVehicleId = localStorage.getItem("@garagefy:active_vehicle_id");
+    
+    if (!savedVehicleId) {
+      alert("Nenhum veículo ativo selecionado. Escolha um carro na Garagem primeiro.");
+      router.push("/my-garage");
+      return;
+    }
+
+    // Joga a atualização do estado para a próxima iteração do event loop,
+    // evitando chamadas síncronas de setState dentro do efeito.
+    const tempTimeout = setTimeout(() => {
+      setVehicleId(savedVehicleId);
+    }, 0);
+
+    return () => clearTimeout(tempTimeout);
+  }, [router]);
+
+  // 2. Ajusta dinamicamente os parâmetros de consulta da API baseados no veículo ativo e filtro selecionado
+  const apiUrl = vehicleId
+    ? `http://localhost:8080/api/vehicles/${vehicleId}/logbook${
+        activeFilter !== "all" ? `?category=${activeFilter}` : ""
+      }`
+    : null;
+
   const {
     data: entries = [],
     error,
@@ -46,13 +74,13 @@ const LogbookListPage = () => {
     mutate,
   } = useSWR<LogbookEntry[]>(apiUrl, fetcher);
 
-  // Função para Deletar um registro (DELETE)
+  // Função para Deletar um registro (DELETE) usando o ID dinâmico
   const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja remover esta entrada?")) return;
+    if (!vehicleId || !confirm("Tem certeza que deseja remover esta entrada?")) return;
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/vehicles/${MOCK_VEHICLE_ID}/logbook/${id}`,
+        `http://localhost:8080/api/vehicles/${vehicleId}/logbook/${id}`,
         { method: "DELETE" },
       );
 
@@ -66,6 +94,15 @@ const LogbookListPage = () => {
       console.error("Erro na exclusão:", error);
     }
   };
+
+  // Impede a renderização enquanto o localStorage não for mapeado
+  if (!vehicleId) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center font-sans">
+        <p className="text-zinc-500 text-sm animate-pulse">Carregando histórico...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pb-32 font-sans">
