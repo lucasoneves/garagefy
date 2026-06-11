@@ -18,7 +18,7 @@ export default function QuickActions() {
           <span className="font-bold text-sm">Add Fuel</span>
         </Link>
         <Link
-          href="/add-service"
+          href="/services/add"
           className="bg-zinc-900/40 border border-zinc-800/50 rounded-[2rem] p-6 flex flex-col items-center gap-3 hover:bg-zinc-800/40 transition-all"
         >
           <div className="text-purple-500 mb-2">
