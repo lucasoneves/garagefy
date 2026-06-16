@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { BiPlus, BiTrash, BiFile, BiTimeFive } from "react-icons/bi";
+import { BiPlus, BiTrash, BiTimeFive } from "react-icons/bi";
+import { api, swrFetcher } from "@/lib/api";
 import PageNavHeader from "@/components/PageNavHeader";
 import PageDescription from "@/components/ui/PageDescription";
 import FilterTab, { FilterOption } from "@/components/ui/FilterTab";
@@ -15,7 +16,6 @@ interface LogbookEntry {
   category: "Observation" | "Reminder" | "To-do";
   title: string;
   description: string;
-  attachment_url?: string;
   created_at: string;
 }
 
@@ -25,13 +25,6 @@ const filterOptions: FilterOption[] = [
   { value: "Reminder", label: "Reminders" },
   { value: "To-do", label: "To-dos" },
 ];
-
-// Fetcher simples utilizando o fetch nativo do JS
-const fetcher = (url: string) =>
-  fetch(url).then((res) => {
-    if (!res.ok) throw new Error("Erro ao carregar os dados do servidor.");
-    return res.json();
-  });
 
 const LogbookListPage = () => {
   const router = useRouter();
@@ -44,27 +37,23 @@ const LogbookListPage = () => {
   // 1. Carrega o ID do veículo ativo selecionado na Garagem com segurança
   useEffect(() => {
     const savedVehicleId = localStorage.getItem("@garagefy:active_vehicle_id");
-    
+
     if (!savedVehicleId) {
-      alert("Nenhum veículo ativo selecionado. Escolha um carro na Garagem primeiro.");
-      router.push("/my-garage");
-      return;
-    }
-
-    // Joga a atualização do estado para a próxima iteração do event loop,
-    // evitando chamadas síncronas de setState dentro do efeito.
-    const tempTimeout = setTimeout(() => {
+      api.get("/vehicles").then((res) => {
+        const vehicles = res.data;
+        if (vehicles?.length > 0) {
+          const firstId = vehicles[0].id;
+          localStorage.setItem("@garagefy:active_vehicle_id", firstId);
+          setVehicleId(firstId);
+        }
+      });
+    } else {
       setVehicleId(savedVehicleId);
-    }, 0);
-
-    return () => clearTimeout(tempTimeout);
+    }
   }, [router]);
 
-  // 2. Ajusta dinamicamente os parâmetros de consulta da API baseados no veículo ativo e filtro selecionado
   const apiUrl = vehicleId
-    ? `http://localhost:8080/api/vehicles/${vehicleId}/logbook${
-        activeFilter !== "all" ? `?category=${activeFilter}` : ""
-      }`
+    ? `/vehicles/${vehicleId}/logbook`
     : null;
 
   const {
@@ -72,26 +61,23 @@ const LogbookListPage = () => {
     error,
     isLoading,
     mutate,
-  } = useSWR<LogbookEntry[]>(apiUrl, fetcher);
+  } = useSWR<LogbookEntry[]>(apiUrl, swrFetcher);
+
+  const filteredEntries = activeFilter === "all"
+    ? entries
+    : entries.filter((e) => e.category === activeFilter);
 
   // Função para Deletar um registro (DELETE) usando o ID dinâmico
   const handleDelete = async (id: string) => {
     if (!vehicleId || !confirm("Tem certeza que deseja remover esta entrada?")) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/vehicles/${vehicleId}/logbook/${id}`,
-        { method: "DELETE" },
-      );
-
-      if (response.ok) {
-        // Alerta o SWR para atualizar o cache local instantaneamente
-        mutate();
-      } else {
-        alert("Erro ao deletar o registro.");
-      }
+      await api.delete(`/vehicles/${vehicleId}/logbook/${id}`);
+      // Alerta o SWR para atualizar o cache local instantaneamente
+      mutate();
     } catch (error) {
       console.error("Erro na exclusão:", error);
+      alert("Erro ao deletar o registro.");
     }
   };
 
@@ -142,12 +128,12 @@ const LogbookListPage = () => {
           <p className="text-sm text-red-400 font-medium text-center py-10">
             Failed to load logbook entries.
           </p>
-        ) : entries.length === 0 ? (
+        ) : filteredEntries.length === 0 ? (
           <p className="text-sm text-zinc-500 font-medium text-center py-10">
             No entries found for this category.
           </p>
         ) : (
-          entries.map((entry) => (
+          filteredEntries.map((entry) => (
             <div
               key={entry.id}
               className="bg-[#121212] border border-zinc-900/80 rounded-3xl p-5 flex flex-col justify-between space-y-4 relative group"
@@ -184,42 +170,23 @@ const LogbookListPage = () => {
                 </p>
               </div>
 
-              {/* Footer Card: Thumbnail de Anexo e Ações */}
-              <div className="flex items-center justify-between pt-2 border-t border-zinc-900/40">
-                {entry.attachment_url ? (
-                  <a
-                    href={`http://localhost:8080${entry.attachment_url}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
-                  >
-                    <BiFile size={16} />
-                    <span>View attachment</span>
-                  </a>
-                ) : (
-                  <span className="text-[11px] text-zinc-600 italic">
-                    No attachments
-                  </span>
-                )}
-
-                {/* Botão de Exclusão e Edição */}
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/logbook/edit/${entry.id}`}
-                    className="text-zinc-500 hover:text-blue-400 p-2 rounded-xl hover:bg-blue-500/5 border border-transparent hover:border-blue-500/10 transition-all text-xs font-bold"
-                    title="Edit entry"
-                  >
-                    Editar
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(entry.id)}
-                    className="text-zinc-500 hover:text-red-400 p-2 rounded-xl hover:bg-red-500/5 border border-transparent hover:border-red-500/10 transition-all"
-                    title="Delete entry"
-                  >
-                    <BiTrash size={16} />
-                  </button>
-                </div>
+              {/* Footer Card: Ações */}
+              <div className="flex items-center justify-end pt-2 border-t border-zinc-900/40 gap-2">
+                <Link
+                  href={`/logbook/edit/${entry.id}`}
+                  className="text-zinc-500 hover:text-blue-400 p-2 rounded-xl hover:bg-blue-500/5 border border-transparent hover:border-blue-500/10 transition-all text-xs font-bold"
+                  title="Edit entry"
+                >
+                  Editar
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(entry.id)}
+                  className="text-zinc-500 hover:text-red-400 p-2 rounded-xl hover:bg-red-500/5 border border-transparent hover:border-red-500/10 transition-all"
+                  title="Delete entry"
+                >
+                  <BiTrash size={16} />
+                </button>
               </div>
             </div>
           ))

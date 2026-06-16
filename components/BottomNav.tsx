@@ -4,10 +4,9 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
-import { BiWalletAlt } from "react-icons/bi";
 import { MdOutlineDirectionsCar } from "react-icons/md";
+import { BiWrench, BiSolidGasPump } from "react-icons/bi";
 import { LuNotebook } from "react-icons/lu";
-
 
 const BottomNav = () => {
   const pathname = usePathname() ?? "/";
@@ -34,10 +33,16 @@ const BottomNav = () => {
           active={isActiveFor("/my-garage")}
         />
         <NavItem
-          icon={<BiWalletAlt size={24} />}
-          label="Expenses"
-          path="/expenses"
-          active={isActiveFor("/expenses")}
+          icon={<BiWrench size={24} />}
+          label="Services"
+          path="/services"
+          active={isActiveFor("/services")}
+        />
+        <NavItem
+          icon={<BiSolidGasPump size={24} />}
+          label="Fuel"
+          path="/fuel"
+          active={isActiveFor("/fuel")}
         />
         <NavItem
           icon={<LuNotebook size={24} />}

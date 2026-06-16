@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import useSWR from "swr";
 import { IoAddCircleOutline } from "react-icons/io5";
@@ -8,6 +8,16 @@ import { BiTrash, BiEdit, BiWrench } from "react-icons/bi";
 
 import { api, swrFetcher } from "@/lib/api";
 import PageNavHeader from "@/components/PageNavHeader";
+
+interface Vehicle {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  plate: string;
+  current_odo: number;
+  color: string;
+}
 
 interface Service {
   id: string;
@@ -20,53 +30,48 @@ interface Service {
   service_date: string;
 }
 
-const ServicesPage = () => {
-  const [vehicleId, setVehicleId] = useState<string | null>(null);
+const VehicleServicesPage = () => {
+  const { id } = useParams();
+  const router = useRouter();
 
-  useEffect(() => {
-    const savedId = localStorage.getItem("@garagefy:active_vehicle_id");
-
-    if (!savedId) {
-      api.get("/vehicles").then((res) => {
-        const vehicles = res.data;
-        if (vehicles?.length > 0) {
-          const firstId = vehicles[0].id;
-          localStorage.setItem("@garagefy:active_vehicle_id", firstId);
-          setVehicleId(firstId);
-        }
-      });
-    } else {
-      setVehicleId(savedId);
-    }
-  }, []);
-
-  // Só dispara o SWR se o vehicleId já tiver sido carregado do localStorage
-  const { data: services, error, isLoading, mutate } = useSWR<Service[]>(
-    vehicleId ? `/services?vehicle_id=${vehicleId}` : null,
+  const { data: vehicle, error: vehicleError, isLoading: vehicleLoading } = useSWR<Vehicle>(
+    id ? `/vehicles/${id}` : null,
     swrFetcher
   );
 
-  // Calcula o total acumulado gasto em serviços neste veículo
+  const { data: services, error: servicesError, isLoading: servicesLoading, mutate } = useSWR<Service[]>(
+    id ? `/services?vehicle_id=${id}` : null,
+    swrFetcher
+  );
+
   const totalSpent = services?.reduce((acc, service) => acc + service.cost, 0) || 0;
 
-  const handleDeleteService = async (id: string) => {
+  const handleDeleteService = async (serviceId: string) => {
     if (!confirm("Deseja realmente excluir o registro deste serviço?")) return;
 
     try {
-      await api.delete(`/services/${id}`);
-      mutate(); // Atualiza a lista instantaneamente
+      await api.delete(`/services/${serviceId}`);
+      mutate();
     } catch (err) {
       console.error(err);
       alert("Erro ao deletar o serviço do servidor.");
     }
   };
 
-  if (!vehicleId) {
+  if (vehicleLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-4">
+        <p className="text-zinc-500 text-sm animate-pulse">Carregando...</p>
+      </div>
+    );
+  }
+
+  if (vehicleError) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center p-4">
-        <p className="text-zinc-400 text-center mb-4">Nenhum veículo ativo selecionado.</p>
+        <p className="text-zinc-400 text-center mb-4">Veículo não encontrado.</p>
         <Link href="/my-garage" className="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold">
-          Ir para a Garagem
+          Voltar para a Garagem
         </Link>
       </div>
     );
@@ -74,10 +79,12 @@ const ServicesPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pb-28 font-sans">
-      <PageNavHeader pageTitle="Services Log" />
+      <PageNavHeader
+        pageTitle={vehicle ? `${vehicle.brand} ${vehicle.model}` : "Serviços"}
+        lastPage="/my-garage"
+      />
 
       <main className="mt-6 space-y-6">
-        {/* Card de Sumário de Gastos */}
         <div className="bg-[#121212] rounded-[2rem] p-6 border border-zinc-900/80 flex justify-between items-center">
           <div>
             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Invested</p>
@@ -90,12 +97,10 @@ const ServicesPage = () => {
           </div>
         </div>
 
-        {/* Estados da API */}
-        {isLoading && <div className="text-center text-zinc-500 py-8 animate-pulse text-sm">Carregando histórico...</div>}
-        {error && <div className="text-center text-red-400 py-8 text-sm">Erro ao conectar com o servidor.</div>}
+        {servicesLoading && <div className="text-center text-zinc-500 py-8 animate-pulse text-sm">Carregando histórico...</div>}
+        {servicesError && <div className="text-center text-red-400 py-8 text-sm">Erro ao conectar com o servidor.</div>}
 
-        {/* Lista de Cards de Serviço */}
-        {!isLoading && !error && (
+        {!servicesLoading && !servicesError && (
           <div className="space-y-4">
             {services?.map((service) => {
               const formattedDate = new Date(service.service_date).toLocaleDateString("pt-BR", {
@@ -113,7 +118,6 @@ const ServicesPage = () => {
                       <p className="text-xs text-zinc-400 font-medium">{service.shop_name}</p>
                     </div>
 
-                    {/* Botões de Ação */}
                     <div className="flex items-center gap-1">
                       <Link
                         href={`/services/edit/${service.id}`}
@@ -152,9 +156,8 @@ const ServicesPage = () => {
               </div>
             )}
 
-            {/* Botão Refatorado para Sticky com 100px de distância do bottom */}
             <Link
-              href="/services/add"
+              href={`/services/add`}
               className="sticky bottom-25 z-40 w-full bg-[#0a0a0a]/90 backdrop-blur-sm shadow-2xl border-2 border-dashed border-zinc-800/80 rounded-[2rem] py-4 flex items-center justify-center gap-2 text-zinc-500 hover:text-zinc-400 hover:border-zinc-700 transition-all active:scale-[0.99]"
             >
               <IoAddCircleOutline size={28} />
@@ -163,9 +166,8 @@ const ServicesPage = () => {
           </div>
         )}
       </main>
-
     </div>
   );
 };
 
-export default ServicesPage;
+export default VehicleServicesPage;

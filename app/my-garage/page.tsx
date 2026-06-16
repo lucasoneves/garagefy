@@ -7,8 +7,9 @@ import useSWR from 'swr';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { BiTrash, BiEdit } from 'react-icons/bi';
 
-import BottomNav from '@/components/BottomNav';
+import { api, swrFetcher } from '@/lib/api';
 import PageNavHeader from '@/components/PageNavHeader';
+import VehicleCardSkeleton from '@/components/VehicleCardSkeleton';
 
 // Interface baseada no modelo que validamos no Postman
 interface Vehicle {
@@ -21,20 +22,16 @@ interface Vehicle {
   color: string;
 }
 
-// Fetcher padrão para o SWR consumir a API do Docker
-const fetcher = (url: string) => fetch(url).then((res) => {
-  if (!res.ok) throw new Error('Falha ao buscar dados da API');
-  return res.json();
-});
-
 const MyGaragePage = () => {
   const router = useRouter();
   
   // Hook do SWR para buscar os veículos em tempo real
   const { data: vehicles, error, isLoading, mutate } = useSWR<Vehicle[]>(
-    'http://localhost:8080/api/vehicles',
-    fetcher
+    '/vehicles',
+    swrFetcher
   );
+
+  console.log('vehicles from API:', vehicles);
 
   // Estado para controlar qual ID de veículo está ativo (salvo no navegador)
   const [activeVehicleId, setActiveVehicleId] = useState<string | null>(null);
@@ -58,25 +55,19 @@ const MyGaragePage = () => {
     if (!confirm('Tem certeza que deseja remover este veículo de sua garagem?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/vehicles/${id}`, {
-        method: 'DELETE',
-      });
+      await api.delete(`/vehicles/${id}`);
 
-      if (response.ok) {
-        // Se o carro excluído for o ativo, limpa o estado e o localStorage
-        if (id === activeVehicleId) {
-          setActiveVehicleId(null);
-          localStorage.removeItem('@garagefy:active_vehicle_id');
-        }
-        // Atualiza o cache do SWR instantaneamente
-        mutate();
-      } else {
-        const errorData = await response.json().catch(() => null);
-        alert(errorData?.error || 'Erro ao remover o veículo do servidor.');
+      // Se o carro excluído for o ativo, limpa o estado e o localStorage
+      if (id === activeVehicleId) {
+        setActiveVehicleId(null);
+        localStorage.removeItem('@garagefy:active_vehicle_id');
       }
-    } catch (error) {
+      // Atualiza o cache do SWR instantaneamente
+      mutate();
+    } catch (error: any) {
       console.error('Erro ao deletar veículo:', error);
-      alert('Não foi possível conectar ao servidor para excluir o veículo.');
+      const errorMessage = error.response?.data?.error || 'Não foi possível conectar ao servidor para excluir o veículo.';
+      alert(errorMessage);
     }
   };
 
@@ -88,9 +79,11 @@ const MyGaragePage = () => {
 
       {/* Estados de Carregamento e Erro da API */}
       {isLoading && (
-        <div className="py-12 text-center text-zinc-500 font-medium text-sm animate-pulse">
-          Carregando sua garagem...
-        </div>
+        <section className="space-y-4 mt-6">
+          <VehicleCardSkeleton />
+          <VehicleCardSkeleton />
+          <VehicleCardSkeleton />
+        </section>
       )}
 
       {error && (
@@ -100,9 +93,13 @@ const MyGaragePage = () => {
       )}
 
       {/* Lista de Veículos Dinâmica */}
-      {!isLoading && !error && (
-        <section className="space-y-4 mt-6">
-          {vehicles?.map((vehicle) => {
+        {!isLoading && !error && (
+          <section className="space-y-4 mt-6">
+            {vehicles?.sort((a, b) => {
+              if (a.id === activeVehicleId) return -1;
+              if (b.id === activeVehicleId) return 1;
+              return 0;
+            }).map((vehicle) => {
             // Verifica se este item é o atual ativo
             const isActive = vehicle.id === activeVehicleId;
 
@@ -120,11 +117,11 @@ const MyGaragePage = () => {
                   <div>
                     {isActive ? (
                       <span className="inline-block bg-blue-500/20 text-blue-400 text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-widest">
-                        Active
+                        Selected
                       </span>
                     ) : (
                       <span className="inline-block bg-zinc-900 text-zinc-500 text-[10px] font-bold px-3 py-1 rounded-md uppercase tracking-widest border border-zinc-800/40">
-                        Inactive
+                        Not Selected
                       </span>
                     )}
                   </div>
@@ -218,7 +215,6 @@ const MyGaragePage = () => {
         </section>
       )}
 
-      <BottomNav />
     </div>
   );
 };

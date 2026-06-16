@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
@@ -34,24 +35,14 @@ const AddVehiclePage = () => {
         color: color.trim() || "N/A", // Evita passar nulo se não preenchido
       };
 
-      const response = await fetch("http://localhost:8080/api/vehicles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        const serverMessage = errorData?.error || "Erro desconhecido no servidor.";
-        throw new Error(serverMessage);
-      }
+      const res = await api.post("/vehicles", payload);
+      localStorage.setItem("@garagefy:active_vehicle_id", res.data.id);
 
       router.push("/my-garage");
     } catch (error: any) {
       console.error("Erro no cadastro do veículo:", error);
-      alert(`Não foi possível cadastrar: ${error.message}`);
+      const serverMessage = error.response?.data?.error || error.message || "Erro desconhecido no servidor.";
+      alert(`Não foi possível cadastrar: ${serverMessage}`);
     } finally {
       setIsSubmitting(false);
     }

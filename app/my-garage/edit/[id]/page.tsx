@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { api } from "@/lib/api";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
@@ -26,12 +27,8 @@ const EditVehiclePage = () => {
       if (!id) return;
       
       try {
-        const response = await fetch(`http://localhost:8080/api/vehicles/${id}`);
-        if (!response.ok) {
-          throw new Error("Veículo não encontrado no servidor.");
-        }
-        
-        const data = await response.json();
+        const response = await api.get(`/vehicles/${id}`);
+        const data = response.data;
         
         setBrand(data.brand || "");
         setModel(data.model || "");
@@ -69,24 +66,13 @@ const EditVehiclePage = () => {
         color: color.trim() || "N/A",
       };
 
-      const response = await fetch(`http://localhost:8080/api/vehicles/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        const serverMessage = errorData?.error || "Erro desconhecido ao atualizar no servidor.";
-        throw new Error(serverMessage);
-      }
+      await api.put(`/vehicles/${id}`, payload);
 
       router.push("/my-garage");
     } catch (error: any) {
       console.error("Erro na atualização do veículo:", error);
-      alert(`Não foi possível atualizar o veículo: ${error.message}`);
+      const serverMessage = error.response?.data?.error || error.message || "Erro desconhecido ao atualizar no servidor.";
+      alert(`Não foi possível atualizar o veículo: ${serverMessage}`);
     } finally {
       setIsSubmitting(false);
     }

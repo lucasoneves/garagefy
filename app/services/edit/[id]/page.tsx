@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { HiOutlineCalendar } from "react-icons/hi";
+import { api } from "@/lib/api";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
@@ -28,10 +29,8 @@ const EditServicePage = () => {
       if (!id) return;
       
       try {
-        const response = await fetch(`http://localhost:8080/api/services/${id}`);
-        if (!response.ok) throw new Error("Serviço não encontrado.");
-        
-        const data = await response.json();
+        const response = await api.get(`/services/${id}`);
+        const data = response.data;
         
         setTitle(data.title || "");
         setShopName(data.shop_name || "");
@@ -101,23 +100,13 @@ const EditServicePage = () => {
         service_date: isoDate,
       };
 
-      const response = await fetch(`http://localhost:8080/api/services/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.error || "Erro ao atualizar serviço.");
-      }
+      await api.put(`/services/${id}`, payload);
 
       router.push("/services");
     } catch (error: any) {
       console.error("Erro ao editar serviço:", error);
-      alert(`Não foi possível salvar: ${error.message}`);
+      const serverMessage = error.response?.data?.error || error.message || "Erro ao atualizar serviço.";
+      alert(`Não foi possível salvar: ${serverMessage}`);
     } finally {
       setIsSubmitting(false);
     }

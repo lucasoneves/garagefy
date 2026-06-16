@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { HiOutlineCalendar } from "react-icons/hi";
+import { api } from "@/lib/api";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
@@ -96,25 +97,14 @@ const AddServicePage = () => {
         service_date: isoDate,
       };
 
-      const response = await fetch("http://localhost:8080/api/services", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        const serverMessage = errorData?.error || "Erro desconhecido ao salvar o serviço.";
-        throw new Error(serverMessage);
-      }
+      await api.post("/services", payload);
 
       // Redireciona de volta para a listagem de serviços após o sucesso
       router.push("/services");
     } catch (error: any) {
       console.error("Erro ao cadastrar serviço:", error);
-      alert(`Não foi possível salvar o serviço: ${error.message}`);
+      const serverMessage = error.response?.data?.error || error.message || "Erro desconhecido ao salvar o serviço.";
+      alert(`Não foi possível salvar o serviço: ${serverMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -202,7 +192,6 @@ const AddServicePage = () => {
             rows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            required
             disabled={isSubmitting}
           />
 
