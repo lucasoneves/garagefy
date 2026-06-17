@@ -5,14 +5,22 @@ export function proxy(request: NextRequest) {
   const token = request.cookies.get('garagefy_token')?.value;
   const { pathname } = request.nextUrl;
 
-  const protectedRoutes = ['/', '/my-garage', '/expenses', '/logbook', '/add-fuel', '/services', '/settings'];
+  const protectedRoutes = ['/', '/my-garage', '/expenses', '/logbook', '/add-fuel', '/fuel', '/services', '/settings'];
   const isProtected = protectedRoutes.some((route) => pathname === route || pathname.startsWith(route + '/'));
 
   if (!token && isProtected) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  if (token && (pathname === '/login' || pathname === '/register')) {
+  if (
+    token &&
+    (pathname === '/login' ||
+      pathname === '/register' ||
+      pathname === '/forgot-password' ||
+      pathname === '/reset-password')
+  ) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
@@ -21,6 +29,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp)$).*)',
   ],
 };

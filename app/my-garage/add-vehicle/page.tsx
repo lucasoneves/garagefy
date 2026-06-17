@@ -52,7 +52,7 @@ const AddVehiclePage = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-blue-500/30">
       <PageNavHeader pageTitle="Add Vehicle" lastPage="/my-garage" />
 
-      <form onSubmit={handleSubmit} className="space-y-6 pb-40 mt-6 px-4">
+      <form onSubmit={handleSubmit} className="space-y-6 pb-40 mt-6">
         {/* Brand/Make */}
         <MainInput
           label="Make / Brand"
@@ -98,7 +98,7 @@ const AddVehiclePage = () => {
         </div>
 
         {/* Color & Odometer */}
-        <div className="space-y-2 w-full flex gap-4 justify-between items-end">
+        <div className="space-y-2 w-full flex gap-4 justify-between items-baseline">
           <div className="flex-1">
             <MainInput
               label="Color"

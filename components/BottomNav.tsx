@@ -19,7 +19,7 @@ const BottomNav = () => {
 
   return (
     <nav className="fixed w-full bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-zinc-800/50 p-4 flex justify-between items-center z-30">
-      <div className="max-w-2xl w-full justify-between m-auto flex px-4">
+      <div className="max-w-2xl w-full justify-between m-auto flex">
         <NavItem
           icon={<MdOutlineSpaceDashboard size={24} />}
           label="Dashboard"

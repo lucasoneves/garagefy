@@ -25,7 +25,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <h1 className="text-3xl font-bold mb-2">Entrar</h1>
         <p className="text-zinc-500 mb-8 text-sm">
@@ -70,6 +70,13 @@ export default function LoginPage() {
           {error && (
             <p className="text-red-400 text-sm text-center">{error}</p>
           )}
+
+          <Link
+            href="/forgot-password"
+            className="text-blue-500 hover:underline text-sm text-right -mt-2"
+          >
+            Esqueci minha senha
+          </Link>
 
           <button
             type="submit"

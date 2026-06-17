@@ -24,7 +24,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <h1 className="text-3xl font-bold mb-2">Criar conta</h1>
         <p className="text-zinc-500 mb-8 text-sm">

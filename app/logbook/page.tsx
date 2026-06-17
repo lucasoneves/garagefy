@@ -161,7 +161,7 @@ const LogbookListPage = () => {
               </div>
 
               {/* Corpo: Título e Conteúdo */}
-              <div className="space-y-1 pr-10">
+              <div className="space-y-1">
                 <h3 className="text-sm font-bold text-zinc-200">
                   {entry.title}
                 </h3>

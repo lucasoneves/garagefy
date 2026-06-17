@@ -11,7 +11,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { signed, loading } = useAuth();
 
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAuthPage =
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password';
 
   useEffect(() => {
     if (loading) return;
