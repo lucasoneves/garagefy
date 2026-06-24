@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { LuWaves } from "react-icons/lu";
 import { api } from "@/lib/api";
@@ -10,8 +10,9 @@ import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
 import MainSelect from "@/components/ui/MainSelect";
 
-const AddFuelPage = () => {
+const EditFuelPage = () => {
   const router = useRouter();
+  const { id } = useParams();
 
   const [gasStation, setGasStation] = useState("");
   const [fuelType, setFuelType] = useState("gasoline_premium");
@@ -21,46 +22,52 @@ const AddFuelPage = () => {
   const [currentOdo, setCurrentOdo] = useState("");
   const [date, setDate] = useState("");
 
-  const [vehicleId, setVehicleId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const savedId = localStorage.getItem("@garagefy:active_vehicle_id");
+    const fetchFuelData = async () => {
+      if (!id) return;
 
-    if (!savedId) {
-      api.get("/vehicles").then((res) => {
-        const vehicles = res.data;
-        if (vehicles?.length > 0) {
-          const firstId = vehicles[0].id;
-          localStorage.setItem("@garagefy:active_vehicle_id", firstId);
-          setVehicleId(firstId);
+      try {
+        const response = await api.get(`/fuels/${id}`);
+        const data = response.data;
+        console.log("EditFuel data:", data);
+
+        setGasStation(data.gas_station || "");
+        setFuelType(data.fuel_type || "gasoline_premium");
+        setPricePerLiter(data.price_per_liter ? String(data.price_per_liter) : "");
+        setTotalCost(data.total_cost ? String(data.total_cost) : "");
+        setLiters(data.liters ? String(data.liters) : "");
+        setCurrentOdo(data.odometer ? String(data.odometer) : "");
+
+        if (data.date) {
+          const rawDate = new Date(data.date);
+          const day = String(rawDate.getUTCDate()).padStart(2, "0");
+          const month = String(rawDate.getUTCMonth() + 1).padStart(2, "0");
+          const year = rawDate.getUTCFullYear();
+          setDate(`${day}/${month}/${year}`);
         }
-      });
-    } else {
-      setVehicleId(savedId);
-    }
-  }, []);
+      } catch (error: any) {
+        console.error("Erro ao buscar abastecimento:", error);
+        alert(`Erro ao carregar dados: ${error.message}`);
+        router.push("/fuel");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFuelData();
+  }, [id, router]);
 
   const formatDateInput = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 8);
     let formatted = "";
-
-    if (digits.length >= 2) {
-      formatted += digits.slice(0, 2) + "/";
-    } else {
-      formatted += digits;
-    }
-
-    if (digits.length >= 4) {
-      formatted += digits.slice(2, 4) + "/";
-    } else if (digits.length > 2) {
-      formatted += digits.slice(2);
-    }
-
-    if (digits.length > 4) {
-      formatted += digits.slice(4);
-    }
-
+    if (digits.length >= 2) formatted += digits.slice(0, 2) + "/";
+    else formatted += digits;
+    if (digits.length >= 4) formatted += digits.slice(2, 4) + "/";
+    else if (digits.length > 2) formatted += digits.slice(2);
+    if (digits.length > 4) formatted += digits.slice(4);
     return formatted;
   };
 
@@ -70,7 +77,7 @@ const AddFuelPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isSubmitting || !vehicleId) return;
+    if (isSubmitting || !id) return;
 
     setIsSubmitting(true);
 
@@ -85,7 +92,6 @@ const AddFuelPage = () => {
       }
 
       const payload = {
-        vehicle_id: vehicleId,
         gas_station: gasStation.trim(),
         fuel_type: fuelType,
         price_per_liter: pricePerLiter ? parseFloat(pricePerLiter.replace(",", ".")) : null,
@@ -95,23 +101,30 @@ const AddFuelPage = () => {
         date: isoDate,
       };
 
-      await api.post("/fuels", payload);
+      await api.put(`/fuels/${id}`, payload);
       router.push("/fuel");
     } catch (error: any) {
-      console.error("Erro ao cadastrar abastecimento:", error);
-      const serverMessage = error.response?.data?.error || error.message || "Erro desconhecido.";
+      console.error("Erro ao editar abastecimento:", error);
+      const serverMessage = error.response?.data?.error || error.message || "Erro ao atualizar abastecimento.";
       alert(`Não foi possível salvar: ${serverMessage}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center font-sans">
+        <p className="text-sm text-zinc-500 animate-pulse">Loading fuel entry...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      <PageNavHeader pageTitle="Add Fuel" />
+      <PageNavHeader pageTitle="Edit Fuel" lastPage="/fuel" />
 
       <form onSubmit={handleSubmit} className="space-y-6 pb-40 mt-6">
-
         <MainInput
           label="Gas Station"
           placeholder="Shell, Exxon, BP..."
@@ -194,10 +207,10 @@ const AddFuelPage = () => {
           </span>
         </div>
 
-        <SaveButton title={isSubmitting ? "Saving Fuel Entry..." : "Save Fuel Entry"} />
+        <SaveButton title={isSubmitting ? "Updating Fuel Entry..." : "Update Fuel Entry"} />
       </form>
     </div>
   );
 };
 
-export default AddFuelPage;
+export default EditFuelPage;

@@ -11,7 +11,6 @@ import { api, swrFetcher } from '@/lib/api';
 import PageNavHeader from '@/components/PageNavHeader';
 import VehicleCardSkeleton from '@/components/VehicleCardSkeleton';
 
-// Interface baseada no modelo que validamos no Postman
 interface Vehicle {
   id: string;
   brand: string;
@@ -20,6 +19,7 @@ interface Vehicle {
   plate: string;
   current_odo: number;
   color: string;
+  created_at?: string;
 }
 
 const MyGaragePage = () => {
@@ -41,6 +41,21 @@ const MyGaragePage = () => {
     const savedActiveId = localStorage.getItem('@garagefy:active_vehicle_id');
     setActiveVehicleId(savedActiveId);
   }, []);
+
+  // Se não houver veículo ativo salvo, seleciona automaticamente o último criado
+  useEffect(() => {
+    if (vehicles && vehicles.length > 0 && !activeVehicleId) {
+      const sorted = [...vehicles].sort((a, b) => {
+        if (a.created_at && b.created_at) {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        }
+        return 0;
+      });
+      const lastVehicle = sorted[0];
+      setActiveVehicleId(lastVehicle.id);
+      localStorage.setItem('@garagefy:active_vehicle_id', lastVehicle.id);
+    }
+  }, [vehicles, activeVehicleId]);
 
   // Define um novo veículo ativo e persiste a escolha no localStorage
   const handleSetActive = (id: string) => {

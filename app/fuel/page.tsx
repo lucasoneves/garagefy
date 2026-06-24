@@ -17,7 +17,7 @@ interface FuelEntry {
   price_per_liter: number;
   total_cost: number;
   liters: number;
-  current_odo: number;
+  odometer: number;
   date: string;
 }
 
@@ -117,7 +117,7 @@ const FuelPage = () => {
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                        {formattedDate} • {entry.current_odo.toLocaleString("pt-BR")} km
+                        {formattedDate} • {entry.odometer.toLocaleString("pt-BR")} km
                       </span>
                       <h4 className="text-xl font-bold tracking-tight">{entry.gas_station}</h4>
                       <p className="text-xs text-zinc-400 font-medium">
