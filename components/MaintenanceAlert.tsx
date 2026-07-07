@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { HiOutlineChevronRight, HiOutlineBell } from "react-icons/hi";
 
-export default function MaintenanceAlert() {
+interface MaintenanceAlertProps {
+  message: string;
+}
+
+export default function MaintenanceAlert({ message }: MaintenanceAlertProps) {
   return (
     <Link
-      href="/maintenance"
+      href="/services"
       className="flex items-center justify-between bg-[#1a1608] border border-amber-900/30 rounded-[2rem] p-5 mb-8"
     >
       <div className="flex items-center gap-4">
@@ -15,9 +19,7 @@ export default function MaintenanceAlert() {
           <h4 className="font-bold text-amber-500 text-sm">
             Maintenance Alert
           </h4>
-          <p className="text-amber-500/70 text-xs">
-            Oil change needed in 800 KM
-          </p>
+          <p className="text-amber-500/70 text-xs">{message}</p>
         </div>
       </div>
       <HiOutlineChevronRight className="text-amber-500/50" />
