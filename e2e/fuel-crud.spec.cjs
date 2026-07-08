@@ -18,7 +18,6 @@ const mockFuels = [
     price_per_liter: 6.49,
     total_cost: 194.70,
     liters: 30,
-    odometer: 15000,
     date: '2026-06-01T00:00:00Z',
   },
   {
@@ -29,7 +28,6 @@ const mockFuels = [
     price_per_liter: 4.29,
     total_cost: 85.80,
     liters: 20,
-    odometer: 15300,
     date: '2026-06-15T00:00:00Z',
   },
 ];
@@ -137,7 +135,6 @@ test.describe('Fuel CRUD', () => {
       await page.getByPlaceholder('0.00').first().fill('5,49');
       await page.getByPlaceholder('0.00').nth(1).fill('109,80');
       await page.getByPlaceholder('0.00').nth(2).fill('20');
-      await page.getByPlaceholder('0', { exact: true }).fill('16000');
       await page.getByPlaceholder('DD/MM/YYYY').fill('20062026');
 
       await page.getByRole('button', { name: /save fuel entry/i }).click();
@@ -149,7 +146,6 @@ test.describe('Fuel CRUD', () => {
         price_per_liter: 5.49,
         total_cost: 109.80,
         liters: 20,
-        odometer: 16000,
       });
 
       await page.waitForURL('http://localhost:3333/fuel', { timeout: 15000 });
@@ -230,7 +226,6 @@ test.describe('Fuel CRUD', () => {
       await expect(page.getByText('Edit Fuel')).toBeVisible();
 
       await expect(page.getByPlaceholder('Shell, Exxon, BP...')).toHaveValue('Shell');
-      await expect(page.getByPlaceholder('0', { exact: true })).toHaveValue('15000');
 
       await page.getByPlaceholder('Shell, Exxon, BP...').fill('Ipiranga');
       await page.getByRole('button', { name: /update fuel entry/i }).click();
@@ -239,7 +234,6 @@ test.describe('Fuel CRUD', () => {
         gas_station: 'Ipiranga',
         fuel_type: 'gasoline_premium',
         total_cost: 194.70,
-        odometer: 15000,
       });
 
       await page.waitForURL('http://localhost:3333/fuel', { timeout: 15000 });

@@ -42,29 +42,6 @@ const SecurityPrivacyPage = () => {
         </h3>
         
         <div className="bg-[#121212] border border-zinc-900/60 rounded-[2rem] overflow-hidden p-2 space-y-1">
-          
-          {/* Toggle: Passkey / Biometrics */}
-          <div className="flex items-center justify-between p-4 rounded-2xl transition-colors">
-            <div className="flex items-center gap-4">
-              <div>
-                <span className="font-bold text-sm block">Enable Passkey / Biometrics</span>
-                <span className="text-[11px] text-zinc-500 font-medium block mt-0.5">
-                  Use FaceID or TouchID for secure login.
-                </span>
-              </div>
-            </div>
-            <button 
-              type="button"
-              onClick={() => setBiometrics(!biometrics)}
-              className={`w-12 h-6 rounded-full transition-colors relative flex items-center shrink-0 ${
-                biometrics ? 'bg-blue-500' : 'bg-zinc-800'
-              }`}
-            >
-              <div className={`w-4 h-4 bg-white rounded-full transition-transform absolute ${
-                biometrics ? 'right-1' : 'left-1'
-              }`} />
-            </button>
-          </div>
 
           {/* Link: Change Password */}
           <Link 

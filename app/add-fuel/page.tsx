@@ -18,7 +18,6 @@ const AddFuelPage = () => {
   const [pricePerLiter, setPricePerLiter] = useState("");
   const [totalCost, setTotalCost] = useState("");
   const [liters, setLiters] = useState("");
-  const [currentOdo, setCurrentOdo] = useState("");
   const [date, setDate] = useState("");
 
   const [vehicleId, setVehicleId] = useState<string | null>(null);
@@ -91,7 +90,6 @@ const AddFuelPage = () => {
         price_per_liter: pricePerLiter ? parseFloat(pricePerLiter.replace(",", ".")) : null,
         total_cost: parseFloat(totalCost.replace(",", ".")) || 0,
         liters: liters ? parseFloat(liters.replace(",", ".")) : null,
-        odometer: currentOdo ? parseInt(currentOdo, 10) : null,
         date: isoDate,
       };
 
@@ -162,19 +160,6 @@ const AddFuelPage = () => {
           />
           <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
             L
-          </span>
-        </div>
-
-        <div className="space-y-2 w-full relative">
-          <MainInput
-            label="Current Odometer"
-            placeholder="0"
-            value={currentOdo}
-            onChange={(e) => setCurrentOdo(e.target.value)}
-            disabled={isSubmitting}
-          />
-          <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
-            KM
           </span>
         </div>
 

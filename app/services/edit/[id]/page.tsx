@@ -16,7 +16,6 @@ const EditServicePage = () => {
   const [title, setTitle] = useState("");
   const [shopName, setShopName] = useState("");
   const [cost, setCost] = useState("");
-  const [currentOdo, setCurrentOdo] = useState("");
   const [date, setDate] = useState<string>("");
   const [description, setDescription] = useState("");
   
@@ -35,7 +34,6 @@ const EditServicePage = () => {
         setTitle(data.title || "");
         setShopName(data.shop_name || "");
         setCost(data.cost ? String(data.cost) : "");
-        setCurrentOdo(data.current_odo ? String(data.current_odo) : "");
         setDescription(data.description || "");
 
         // Converte a data ISO vinda do Go (2026-06-10T...) de volta para DD/MM/YYYY
@@ -95,7 +93,6 @@ const EditServicePage = () => {
         title: title.trim(),
         description: description.trim(),
         shop_name: shopName.trim(),
-        current_odo: parseInt(currentOdo, 10) || 0,
         cost: parseFloat(String(cost).replace(",", ".")) || 0.0,
         service_date: isoDate,
       };
@@ -154,20 +151,6 @@ const EditServicePage = () => {
               required
               disabled={isSubmitting}
             />
-          </div>
-
-          <div className="w-full relative">
-            <MainInput
-              label="Current Odometer"
-              type="number"
-              value={currentOdo}
-              onChange={(e) => setCurrentOdo(e.target.value)}
-              required
-              disabled={isSubmitting}
-            />
-            <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
-              KM
-            </span>
           </div>
 
           <div className="w-full relative">

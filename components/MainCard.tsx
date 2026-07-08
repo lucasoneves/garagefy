@@ -7,16 +7,18 @@ interface MainCardProps {
   vehicleId: string;
   brand: string;
   model: string;
+  year: number;
+  plate: string;
   currentOdometer: number;
   status?: string;
 }
 
-export default function MainCard({ vehicleId, brand, model, currentOdometer, status = "Active" }: MainCardProps) {
+export default function MainCard({ vehicleId, brand, model, year, plate, currentOdometer, status = "Active" }: MainCardProps) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-zinc-900 to-black rounded-[2.5rem] p-8 mb-6 border border-zinc-800/50">
-      <div className="relative z-10 flex flex-col h-[200px]">
+    <section className="relative overflow-hidden bg-linear-to-br from-zinc-900 to-black rounded-[2.5rem] p-8 mb-6 border border-zinc-800/50">
+      <div className="relative z-10 flex flex-col h-30">
         <div className="flex justify-between items-start">
-          <h3 className="text-4xl font-bold max-w-[200px] leading-tight">
+          <h3 className="text-2xl font-bold  leading-tight">
             {brand} {model}
           </h3>
           <Link
@@ -26,6 +28,9 @@ export default function MainCard({ vehicleId, brand, model, currentOdometer, sta
             <BiEdit size={18} />
           </Link>
         </div>
+        <p className="text-sm text-zinc-500 font-medium mt-1">
+          {year} • <span className="uppercase">{plate}</span>
+        </p>
         <div className="flex items-end justify-between mt-auto">
           <div className="flex items-center gap-2 text-zinc-400">
             <MdOutlineSpeed size={20} />

@@ -16,7 +16,6 @@ const AddServicePage = () => {
   const [title, setTitle] = useState("");
   const [shopName, setShopName] = useState("");
   const [cost, setCost] = useState("");
-  const [currentOdo, setCurrentOdo] = useState("");
   const [date, setDate] = useState<string>("");
   const [description, setDescription] = useState("");
   
@@ -92,7 +91,6 @@ const AddServicePage = () => {
         title: title.trim(),
         description: description.trim(),
         shop_name: shopName.trim(),
-        current_odo: parseInt(currentOdo, 10) || 0,
         cost: parseFloat(cost.replace(",", ".")) || 0.0, // Trata separadores decimais do teclado BR
         service_date: isoDate,
       };
@@ -150,22 +148,6 @@ const AddServicePage = () => {
               required
               disabled={isSubmitting}
             />
-          </div>
-
-          {/* Current Odometer */}
-          <div className="w-full relative">
-            <MainInput
-              label="Current Odometer"
-              type="number"
-              placeholder="0"
-              value={currentOdo}
-              onChange={(e) => setCurrentOdo(e.target.value)}
-              required
-              disabled={isSubmitting}
-            />
-            <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
-              KM
-            </span>
           </div>
 
           {/* Service Date com Máscara e Ícone Duplo */}

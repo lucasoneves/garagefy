@@ -19,7 +19,6 @@ const EditFuelPage = () => {
   const [pricePerLiter, setPricePerLiter] = useState("");
   const [totalCost, setTotalCost] = useState("");
   const [liters, setLiters] = useState("");
-  const [currentOdo, setCurrentOdo] = useState("");
   const [date, setDate] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -39,8 +38,6 @@ const EditFuelPage = () => {
         setPricePerLiter(data.price_per_liter ? String(data.price_per_liter) : "");
         setTotalCost(data.total_cost ? String(data.total_cost) : "");
         setLiters(data.liters ? String(data.liters) : "");
-        setCurrentOdo(data.odometer ? String(data.odometer) : "");
-
         if (data.date) {
           const rawDate = new Date(data.date);
           const day = String(rawDate.getUTCDate()).padStart(2, "0");
@@ -97,7 +94,6 @@ const EditFuelPage = () => {
         price_per_liter: pricePerLiter ? parseFloat(pricePerLiter.replace(",", ".")) : null,
         total_cost: parseFloat(totalCost.replace(",", ".")) || 0,
         liters: liters ? parseFloat(liters.replace(",", ".")) : null,
-        odometer: currentOdo ? parseInt(currentOdo, 10) : null,
         date: isoDate,
       };
 
@@ -175,19 +171,6 @@ const EditFuelPage = () => {
           />
           <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
             L
-          </span>
-        </div>
-
-        <div className="space-y-2 w-full relative">
-          <MainInput
-            label="Current Odometer"
-            placeholder="0"
-            value={currentOdo}
-            onChange={(e) => setCurrentOdo(e.target.value)}
-            disabled={isSubmitting}
-          />
-          <span className="absolute bottom-4 right-5 text-zinc-500 font-bold text-xs uppercase tracking-tighter pointer-events-none">
-            KM
           </span>
         </div>
 

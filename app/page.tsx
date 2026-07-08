@@ -154,6 +154,8 @@ const DashboardPage = () => {
           vehicleId={activeVehicle.id}
           brand={activeVehicle.brand}
           model={activeVehicle.model}
+          year={activeVehicle.year}
+          plate={activeVehicle.plate}
           currentOdometer={activeVehicle.current_odo}
         />
       ) : (

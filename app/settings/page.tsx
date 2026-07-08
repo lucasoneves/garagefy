@@ -86,21 +86,7 @@ const ProfilePage = () => {
         <h3 className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-4 ml-2">App Settings</h3>
         <div className="bg-[#121212] border border-zinc-800/50 rounded-[2rem] overflow-hidden">
           
-          {/* Notifications Toggle */}
-          <div className="flex items-center justify-between p-5 border-b border-zinc-800/50">
-            <div className="flex items-center gap-4">
-              <div className="bg-zinc-800/50 p-2 rounded-xl text-zinc-300">
-                <HiOutlineBell size={22} />
-              </div>
-              <span className="font-bold">Notifications</span>
-            </div>
-            <button 
-              onClick={() => setNotifications(!notifications)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${notifications ? 'bg-blue-500' : 'bg-zinc-700'}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${notifications ? 'right-1' : 'left-1'}`} />
-            </button>
-          </div>
+         
 
           {/* Security Link */}
           <Link href="/settings/privacy" className="flex items-center justify-between p-5 border-b border-zinc-800/50 hover:bg-zinc-800/20 transition-colors">
@@ -116,16 +102,6 @@ const ProfilePage = () => {
             <HiOutlineChevronRight size={20} className="text-zinc-600" />
           </Link>
 
-          {/* Data Export Link */}
-          <Link href="/export" className="flex items-center justify-between p-5 hover:bg-zinc-800/20 transition-colors">
-            <div className="flex items-center gap-4">
-              <div className="bg-zinc-800/50 p-2 rounded-xl text-zinc-300">
-                <HiOutlineDownload size={22} />
-              </div>
-              <span className="font-bold">Data Export</span>
-            </div>
-            <HiOutlineChevronRight size={20} className="text-zinc-600" />
-          </Link>
 
         </div>
       </section>
