@@ -44,16 +44,6 @@ interface Service {
   service_date: string;
 }
 
-const DAY_LABELS: Record<number, string> = {
-  0: "SUN",
-  1: "MON",
-  2: "TUE",
-  3: "WED",
-  4: "THU",
-  5: "FRI",
-  6: "SAT",
-};
-
 const DashboardPage = () => {
   const [vehicleId, setVehicleId] = useState<string | null>(null);
 
@@ -87,41 +77,37 @@ const DashboardPage = () => {
     [vehicles, vehicleId]
   );
 
-  const { totalSpent, weeklyData } = useMemo(() => {
+  const { totalSpent, dailyData } = useMemo(() => {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
+    const today = now.getDate();
 
-    const allCosts: { day: number; cost: number }[] = [];
+    const dayTotals: Record<number, number> = {};
+    for (let i = 1; i <= today; i++) dayTotals[i] = 0;
 
     (fuels ?? []).forEach((f) => {
       const d = new Date(f.date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        allCosts.push({ day: d.getDay(), cost: f.total_cost });
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && d.getDate() <= today) {
+        dayTotals[d.getDate()] = (dayTotals[d.getDate()] ?? 0) + f.total_cost;
       }
     });
 
     (services ?? []).forEach((s) => {
       const d = new Date(s.service_date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        allCosts.push({ day: d.getDay(), cost: s.cost });
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && d.getDate() <= today) {
+        dayTotals[d.getDate()] = (dayTotals[d.getDate()] ?? 0) + s.cost;
       }
-    });
-
-    const dayTotals: Record<number, number> = {};
-    for (let i = 0; i < 7; i++) dayTotals[i] = 0;
-    allCosts.forEach(({ day, cost }) => {
-      dayTotals[day] = (dayTotals[day] ?? 0) + cost;
     });
 
     const total = Object.values(dayTotals).reduce((a, b) => a + b, 0);
 
-    const weekData = Object.entries(DAY_LABELS).map(([dayNum, label]) => ({
-      day: label,
-      value: dayTotals[Number(dayNum)] ?? 0,
+    const dailyData = Array.from({ length: today }, (_, i) => ({
+      day: i + 1,
+      value: dayTotals[i + 1] ?? 0,
     }));
 
-    return { totalSpent: total, weeklyData: weekData };
+    return { totalSpent: total, dailyData };
   }, [fuels, services]);
 
   const maintenanceMessage = useMemo(() => {
@@ -167,7 +153,7 @@ const DashboardPage = () => {
 
       {maintenanceMessage && <MaintenanceAlert message={maintenanceMessage} />}
 
-      <MonthlySpendings totalSpent={totalSpent} weeklyData={weeklyData} />
+      <MonthlySpendings totalSpent={totalSpent} dailyData={dailyData} />
 
       <QuickActions />
 

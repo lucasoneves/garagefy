@@ -2,11 +2,11 @@ import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
 
 interface MonthlySpendingsProps {
   totalSpent: number;
-  weeklyData: { day: string; value: number }[];
+  dailyData: { day: number; value: number }[];
   percentChange?: number;
 }
 
-export default function MonthlySpendings({ totalSpent, weeklyData, percentChange }: MonthlySpendingsProps) {
+export default function MonthlySpendings({ totalSpent, dailyData, percentChange }: MonthlySpendingsProps) {
   return (
     <section className="bg-zinc-900/30 border border-zinc-800/50 rounded-[2.5rem] p-8 mb-8">
       <div className="flex justify-between items-start mb-6">
@@ -25,29 +25,31 @@ export default function MonthlySpendings({ totalSpent, weeklyData, percentChange
         )}
       </div>
 
-      <div className="h-40 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={weeklyData}>
-            <XAxis
-              dataKey="day"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: "#525252", fontSize: 10, fontWeight: "bold" }}
-              dy={10}
-            />
-            <Bar dataKey="value" radius={[4, 4, 4, 4]}>
-              {weeklyData.map((entry, index) => {
-                const maxVal = Math.max(...weeklyData.map((d) => d.value), 1);
-                return (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.value >= maxVal * 0.9 ? "#007BFF" : "#27272a"}
-                  />
-                );
-              })}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="h-40 w-full overflow-x-auto">
+        <div style={{ minWidth: `${Math.max(dailyData.length * 48, 320)}px` }} className="h-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={dailyData} barCategoryGap={4}>
+              <XAxis
+                dataKey="day"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "#525252", fontSize: 10, fontWeight: "bold" }}
+                dy={10}
+              />
+              <Bar dataKey="value" radius={[4, 4, 4, 4]}>
+                {dailyData.map((entry, index) => {
+                  const maxVal = Math.max(...dailyData.map((d) => d.value), 1);
+                  return (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.value >= maxVal * 0.9 ? "#007BFF" : "#27272a"}
+                    />
+                  );
+                })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </section>
   );
