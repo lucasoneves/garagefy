@@ -9,6 +9,7 @@ import MaintenanceAlert from "@/components/MaintenanceAlert";
 import MonthlySpendings from "@/components/MonthySpendings";
 import QuickActions from "@/components/QuickActions";
 import { swrFetcher } from "@/lib/api";
+import { Service } from "@/lib/types";
 
 interface Vehicle {
   id: string;
@@ -31,17 +32,6 @@ interface FuelEntry {
   liters: number;
   odometer: number;
   date: string;
-}
-
-interface Service {
-  id: string;
-  vehicle_id: string;
-  title: string;
-  description: string;
-  shop_name: string;
-  current_odo: number;
-  cost: number;
-  service_date: string;
 }
 
 const DashboardPage = () => {
@@ -112,7 +102,7 @@ const DashboardPage = () => {
 
   const maintenanceMessage = useMemo(() => {
     if (!activeVehicle || !services || services.length === 0) {
-      return "No upcoming maintenance";
+      return "Nenhuma manutenção prevista";
     }
     const lastService = [...services].sort(
       (a, b) => new Date(b.service_date).getTime() - new Date(a.service_date).getTime()
@@ -120,9 +110,9 @@ const DashboardPage = () => {
     const kmSinceLastService = activeVehicle.current_odo - lastService.current_odo;
     const kmUntilNext = 10000 - kmSinceLastService;
 
-    if (kmUntilNext <= 0) return `Service overdue by ${Math.abs(kmUntilNext)} KM`;
-    if (kmUntilNext <= 1000) return `Service needed in ${kmUntilNext} KM`;
-    return `Next service in ${kmUntilNext} KM`;
+    if (kmUntilNext <= 0) return `Manutenção atrasada em ${Math.abs(kmUntilNext)} KM`;
+    if (kmUntilNext <= 1000) return `Manutenção necessária em ${kmUntilNext} KM`;
+    return `Próxima manutenção em ${kmUntilNext} KM`;
   }, [activeVehicle, services]);
 
   if (!vehicleId) {

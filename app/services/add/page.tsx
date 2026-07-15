@@ -4,21 +4,24 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { api } from "@/lib/api";
+import { ServiceType } from "@/lib/types";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
 import MainTextArea from "@/components/ui/MainTextArea";
+import MainSelect from "@/components/ui/MainSelect";
 
 const AddServicePage = () => {
   const router = useRouter();
 
   // Estados locais para controle do formulário
   const [title, setTitle] = useState("");
+  const [serviceType, setServiceType] = useState<ServiceType | "">("");
   const [shopName, setShopName] = useState("");
   const [cost, setCost] = useState("");
   const [date, setDate] = useState<string>("");
   const [description, setDescription] = useState("");
-  
+
   const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -71,7 +74,7 @@ const AddServicePage = () => {
   // 2. Submissão do payload em formato JSON limpo para a API em Go
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isSubmitting || !vehicleId) return;
+    if (isSubmitting || !vehicleId || !serviceType) return;
 
     setIsSubmitting(true);
 
@@ -89,9 +92,10 @@ const AddServicePage = () => {
       const payload = {
         vehicle_id: vehicleId,
         title: title.trim(),
+        service_type: serviceType,
         description: description.trim(),
         shop_name: shopName.trim(),
-        cost: parseFloat(cost.replace(",", ".")) || 0.0, // Trata separadores decimais do teclado BR
+        cost: parseFloat(cost.replace(",", ".")) || 0.0,
         service_date: isoDate,
       };
 
@@ -110,37 +114,49 @@ const AddServicePage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-blue-500/30">
-      <PageNavHeader pageTitle="Add Service" lastPage="/services" />
+      <PageNavHeader pageTitle="Novo Serviço" lastPage="/services" />
 
       <main className="space-y-8 pb-40">
         <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* Service Type */}
+          {/* Tipo de Serviço */}
+          <MainSelect
+            label="Tipo de Serviço"
+            value={serviceType}
+            onChange={(e) => setServiceType(e.target.value as ServiceType)}
+            required
+            disabled={isSubmitting}
+          >
+            <option value="" disabled>Selecione o tipo de serviço</option>
+            <option value="oleo_fluidos_filtros">Óleo, Fluídos e Filtros</option>
+            <option value="revisao">Revisão</option>
+            <option value="carroceria">Carroceria</option>
+            <option value="manutencao">Manutenção</option>
+          </MainSelect>
+
           <MainInput
-            label="Service Type"
+            label="Nome do Serviço"
             type="text"
-            placeholder="Maintenance, Car Wash..."
+            placeholder="Troca de óleo, Alinhamento..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             disabled={isSubmitting}
           />
 
-          {/* Provider / Workshop */}
           <MainInput
-            label="Provider / Workshop"
+            label="Oficina / Prestador"
             type="text"
-            placeholder="Garage or Shop Name"
+            placeholder="Nome da oficina"
             value={shopName}
             onChange={(e) => setShopName(e.target.value)}
             required
             disabled={isSubmitting}
           />
 
-          {/* Total Cost */}
           <div className="w-full relative">
             <MainInput
-              label="Total Cost"
+              label="Custo Total"
               type="text"
               placeholder="0.00"
               value={cost}
@@ -150,10 +166,9 @@ const AddServicePage = () => {
             />
           </div>
 
-          {/* Service Date com Máscara e Ícone Duplo */}
           <div className="w-full relative">
             <MainInput
-              label="Service Date"
+              label="Data do Serviço"
               type="text"
               value={date}
               onChange={handleDateChange}
@@ -167,17 +182,16 @@ const AddServicePage = () => {
             </span>
           </div>
 
-          {/* Notes */}
           <MainTextArea
-            label="Notes"
-            placeholder="Describe the service performed..."
+            label="Observações"
+            placeholder="Descreva o serviço realizado..."
             rows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             disabled={isSubmitting}
           />
 
-          <SaveButton title={isSubmitting ? "Saving Service..." : "Save Service"} />
+          <SaveButton title={isSubmitting ? "Salvando..." : "Salvar Serviço"} />
         </form>
       </main>
     </div>

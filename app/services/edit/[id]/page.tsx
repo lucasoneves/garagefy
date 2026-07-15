@@ -4,21 +4,24 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { api } from "@/lib/api";
+import { ServiceType } from "@/lib/types";
 import PageNavHeader from "@/components/PageNavHeader";
 import SaveButton from "@/components/SaveButton";
 import MainInput from "@/components/ui/MainInput";
 import MainTextArea from "@/components/ui/MainTextArea";
+import MainSelect from "@/components/ui/MainSelect";
 
 const EditServicePage = () => {
   const router = useRouter();
   const { id } = useParams(); // Pega o ID do serviço vindo da URL
 
   const [title, setTitle] = useState("");
+  const [serviceType, setServiceType] = useState<ServiceType | "">("");
   const [shopName, setShopName] = useState("");
   const [cost, setCost] = useState("");
   const [date, setDate] = useState<string>("");
   const [description, setDescription] = useState("");
-  
+
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,6 +35,7 @@ const EditServicePage = () => {
         const data = response.data;
         
         setTitle(data.title || "");
+        setServiceType(data.service_type || "");
         setShopName(data.shop_name || "");
         setCost(data.cost ? String(data.cost) : "");
         setDescription(data.description || "");
@@ -75,7 +79,7 @@ const EditServicePage = () => {
   // 2. Envia as modificações via PUT
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isSubmitting || !id) return;
+    if (isSubmitting || !id || !serviceType) return;
 
     setIsSubmitting(true);
 
@@ -91,6 +95,7 @@ const EditServicePage = () => {
 
       const payload = {
         title: title.trim(),
+        service_type: serviceType,
         description: description.trim(),
         shop_name: shopName.trim(),
         cost: parseFloat(String(cost).replace(",", ".")) || 0.0,
@@ -112,20 +117,35 @@ const EditServicePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center font-sans">
-        <p className="text-sm text-zinc-500 animate-pulse">Loading service data...</p>
+        <p className="text-sm text-zinc-500 animate-pulse">Carregando dados do serviço...</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-blue-500/30">
-      <PageNavHeader pageTitle="Edit Service" lastPage="/services" />
+      <PageNavHeader pageTitle="Editar Serviço" lastPage="/services" />
 
       <main className="space-y-8 pb-40 mt-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           
+          {/* Tipo de Serviço */}
+          <MainSelect
+            label="Tipo de Serviço"
+            value={serviceType}
+            onChange={(e) => setServiceType(e.target.value as ServiceType)}
+            required
+            disabled={isSubmitting}
+          >
+            <option value="" disabled>Selecione o tipo de serviço</option>
+            <option value="oleo_fluidos_filtros">Óleo, Fluídos e Filtros</option>
+            <option value="revisao">Revisão</option>
+            <option value="carroceria">Carroceria</option>
+            <option value="manutencao">Manutenção</option>
+          </MainSelect>
+
           <MainInput
-            label="Service Type"
+            label="Nome do Serviço"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -134,7 +154,7 @@ const EditServicePage = () => {
           />
 
           <MainInput
-            label="Provider / Workshop"
+            label="Oficina / Prestador"
             type="text"
             value={shopName}
             onChange={(e) => setShopName(e.target.value)}
@@ -144,7 +164,7 @@ const EditServicePage = () => {
 
           <div className="w-full relative">
             <MainInput
-              label="Total Cost"
+              label="Custo Total"
               type="text"
               value={cost}
               onChange={(e) => setCost(e.target.value)}
@@ -155,7 +175,7 @@ const EditServicePage = () => {
 
           <div className="w-full relative">
             <MainInput
-              label="Service Date"
+              label="Data do Serviço"
               type="text"
               value={date}
               onChange={handleDateChange}
@@ -170,7 +190,7 @@ const EditServicePage = () => {
           </div>
 
           <MainTextArea
-            label="Notes"
+            label="Observações"
             rows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -178,7 +198,7 @@ const EditServicePage = () => {
             disabled={isSubmitting}
           />
 
-          <SaveButton title={isSubmitting ? "Updating Service..." : "Update Service"} />
+          <SaveButton title={isSubmitting ? "Salvando..." : "Atualizar Serviço"} />
         </form>
       </main>
     </div>

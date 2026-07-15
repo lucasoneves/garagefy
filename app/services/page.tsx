@@ -7,18 +7,8 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { BiTrash, BiEdit, BiWrench } from "react-icons/bi";
 
 import { api, swrFetcher } from "@/lib/api";
+import { Service, SERVICE_TYPE_LABELS, SERVICE_TYPE_BADGE_CLASSES } from "@/lib/types";
 import PageNavHeader from "@/components/PageNavHeader";
-
-interface Service {
-  id: string;
-  vehicle_id: string;
-  title: string;
-  description: string;
-  shop_name: string;
-  current_odo: number;
-  cost: number;
-  service_date: string;
-}
 
 const ServicesPage = () => {
   const [vehicleId, setVehicleId] = useState<string | null>(null);
@@ -74,13 +64,13 @@ const ServicesPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pb-28 font-sans">
-      <PageNavHeader pageTitle="Services Log" />
+      <PageNavHeader pageTitle="Registro de Serviços" />
 
       <main className="mt-6 space-y-6">
         {/* Card de Sumário de Gastos */}
         <div className="bg-[#121212] rounded-[2rem] p-6 border border-zinc-900/80 flex justify-between items-center">
           <div>
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Invested</p>
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Investido</p>
             <h3 className="text-3xl font-black text-emerald-400 mt-1">
               R$ {totalSpent.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </h3>
@@ -109,7 +99,14 @@ const ServicesPage = () => {
                       <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                         {formattedDate} • {service.current_odo.toLocaleString("pt-BR")} km
                       </span>
-                      <h4 className="text-xl font-bold tracking-tight">{service.title}</h4>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-xl font-bold tracking-tight">{service.title}</h4>
+                        {service.service_type && (
+                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${SERVICE_TYPE_BADGE_CLASSES[service.service_type]}`}>
+                            {SERVICE_TYPE_LABELS[service.service_type]}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-zinc-400 font-medium">{service.shop_name}</p>
                     </div>
 
@@ -137,7 +134,7 @@ const ServicesPage = () => {
                   )}
 
                   <div className="mt-4 pt-4 border-t border-zinc-900/60 flex justify-between items-center">
-                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Cost</span>
+                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Custo</span>
                     <span className="text-lg font-bold text-zinc-200">
                       R$ {service.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                     </span>
@@ -158,7 +155,7 @@ const ServicesPage = () => {
               className="sticky bottom-25 z-40 w-full bg-[#0a0a0a]/90 backdrop-blur-sm shadow-2xl border-2 border-dashed border-zinc-800/80 rounded-[2rem] py-4 flex items-center justify-center gap-2 text-zinc-500 hover:text-zinc-400 hover:border-zinc-700 transition-all active:scale-[0.99]"
             >
               <IoAddCircleOutline size={28} />
-              <span className="font-bold text-xs uppercase tracking-widest">Add New Service</span>
+              <span className="font-bold text-xs uppercase tracking-widest">Novo Serviço</span>
             </Link>
           </div>
         )}
