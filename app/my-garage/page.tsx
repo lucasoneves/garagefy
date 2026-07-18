@@ -1,50 +1,122 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import useSWR from 'swr';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { BiTrash, BiEdit } from 'react-icons/bi';
 
-import { api, swrFetcher } from '@/lib/api';
+import { api } from '@/lib/api';
+import { Vehicle } from '@/lib/types';
 import PageNavHeader from '@/components/PageNavHeader';
 import VehicleCardSkeleton from '@/components/VehicleCardSkeleton';
+import VehicleSearchAndFilters from '@/components/VehicleSearchAndFilters';
 
-interface Vehicle {
-  id: string;
-  brand: string;
-  model: string;
-  year: number;
-  plate: string;
-  current_odo: number;
-  color: string;
-  created_at?: string;
-}
+const LIMIT = 20;
 
 const MyGaragePage = () => {
-  const router = useRouter();
-  
-  // Hook do SWR para buscar os veículos em tempo real
-  const { data: vehicles, error, isLoading, mutate } = useSWR<Vehicle[]>(
-    '/vehicles',
-    swrFetcher
-  );
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [pagination, setPagination] = useState<{
+    total: number;
+    total_pages: number;
+    has_next: boolean;
+  } | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  console.log('vehicles from API:', vehicles);
+  const [search, setSearch] = useState('');
 
-  // Estado para controlar qual ID de veículo está ativo (salvo no navegador)
   const [activeVehicleId, setActiveVehicleId] = useState<string | null>(null);
+  const observerRef = useRef<HTMLDivElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const filtersRef = useRef(search);
+  filtersRef.current = search;
 
-  // Carrega o veículo ativo inicial do localStorage assim que a página monta
   useEffect(() => {
     const savedActiveId = localStorage.getItem('@garagefy:active_vehicle_id');
     setActiveVehicleId(savedActiveId);
   }, []);
 
-  // Se não houver veículo ativo salvo, seleciona automaticamente o último criado
+  const fetchVehicles = async (pageNum: number, append = false) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    const f = filtersRef.current;
+    const params = new URLSearchParams();
+    params.set('page', String(pageNum));
+    params.set('limit', String(LIMIT));
+    if (f) params.set('search', f);
+
+    try {
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsInitialLoading(true);
+      }
+
+      const res = await api.get(`/vehicles?${params.toString()}`, {
+        signal: controller.signal,
+      });
+
+      const body = res.data;
+
+      let items: Vehicle[];
+      let meta: { total: number; total_pages: number; has_next: boolean };
+
+      if (Array.isArray(body)) {
+        items = body;
+        meta = { total: body.length, total_pages: 1, has_next: false };
+      } else {
+        items = body.data ?? [];
+        meta = {
+          total: body.pagination?.total ?? items.length,
+          total_pages: body.pagination?.total_pages ?? 1,
+          has_next: body.pagination?.has_next ?? false,
+        };
+      }
+
+      setVehicles((prev) => (append ? [...prev, ...items] : items));
+      setPagination({
+        total: meta.total,
+        total_pages: meta.total_pages,
+        has_next: meta.has_next,
+      });
+      setError(null);
+    } catch (err: any) {
+      if (err.name === 'CanceledError' || err.name === 'AbortError') return;
+      setError('Não foi possível conectar à API. Verifique se o Docker está rodando.');
+    } finally {
+      setIsInitialLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
+
   useEffect(() => {
-    if (vehicles && vehicles.length > 0 && !activeVehicleId) {
+    fetchVehicles(1, false);
+  }, [search]);
+
+  useEffect(() => {
+    if (!observerRef.current || !pagination?.has_next) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore && pagination?.has_next) {
+          const nextPage = Math.ceil(vehicles.length / LIMIT) + 1;
+          fetchVehicles(nextPage, true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [pagination?.has_next, isLoadingMore, vehicles.length]);
+
+  useEffect(() => {
+    if (vehicles.length > 0 && !activeVehicleId) {
       const sorted = [...vehicles].sort((a, b) => {
         if (a.created_at && b.created_at) {
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -57,28 +129,26 @@ const MyGaragePage = () => {
     }
   }, [vehicles, activeVehicleId]);
 
-  // Define um novo veículo ativo e persiste a escolha no localStorage
   const handleSetActive = (id: string) => {
     setActiveVehicleId(id);
     localStorage.setItem('@garagefy:active_vehicle_id', id);
   };
 
-  // Lógica para Deletar o Veículo se comunicando diretamente com o DeleteVehicle do Go
   const handleDeleteVehicle = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Impede que o clique dispare ações do card pai
-    
+    e.stopPropagation();
+
     if (!confirm('Tem certeza que deseja remover este veículo de sua garagem?')) return;
 
     try {
       await api.delete(`/vehicles/${id}`);
 
-      // Se o carro excluído for o ativo, limpa o estado e o localStorage
       if (id === activeVehicleId) {
         setActiveVehicleId(null);
         localStorage.removeItem('@garagefy:active_vehicle_id');
       }
-      // Atualiza o cache do SWR instantaneamente
-      mutate();
+
+      setVehicles((prev) => prev.filter((v) => v.id !== id));
+      setPagination((prev) => (prev ? { ...prev, total: prev.total - 1 } : null));
     } catch (error: any) {
       console.error('Erro ao deletar veículo:', error);
       const errorMessage = error.response?.data?.error || 'Não foi possível conectar ao servidor para excluir o veículo.';
@@ -86,36 +156,57 @@ const MyGaragePage = () => {
     }
   };
 
+  const handleSearchChange = (newSearch: string) => {
+    setSearch(newSearch);
+  };
+
+  const sortedVehicles = [...vehicles].sort((a, b) => {
+    if (a.id === activeVehicleId) return -1;
+    if (b.id === activeVehicleId) return 1;
+    return 0;
+  });
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pb-28 font-sans selection:bg-blue-500/30">
-      
-      {/* Header */}
       <PageNavHeader pageTitle="My Garage" />
 
-      {/* Estados de Carregamento e Erro da API */}
-      {isLoading && (
-        <section className="space-y-4 mt-6">
+      {/* Search + Filters */}
+      <div className="px-5 mt-4">
+        <VehicleSearchAndFilters
+          search={search}
+          onSearchChange={handleSearchChange}
+        />
+      </div>
+
+      {/* Contador de resultados */}
+      {pagination && !isInitialLoading && (
+        <div className="px-5 mt-4">
+          <p className="text-xs text-zinc-600 font-medium">
+            {pagination.total} {pagination.total === 1 ? 'veículo' : 'veículos'} encontrado{pagination.total === 1 ? '' : 's'}
+          </p>
+        </div>
+      )}
+
+      {/* Loading inicial */}
+      {isInitialLoading && (
+        <section className="space-y-4 mt-6 px-5">
           <VehicleCardSkeleton />
           <VehicleCardSkeleton />
           <VehicleCardSkeleton />
         </section>
       )}
 
+      {/* Erro */}
       {error && (
         <div className="py-12 text-center text-red-400 font-medium text-sm">
-          Não foi possível conectar à API. Verifique se o Docker está rodando.
+          {error}
         </div>
       )}
 
-      {/* Lista de Veículos Dinâmica */}
-        {!isLoading && !error && (
-          <section className="space-y-4 mt-6">
-            {vehicles?.sort((a, b) => {
-              if (a.id === activeVehicleId) return -1;
-              if (b.id === activeVehicleId) return 1;
-              return 0;
-            }).map((vehicle) => {
-            // Verifica se este item é o atual ativo
+      {/* Lista de Veículos */}
+      {!isInitialLoading && !error && (
+        <section className="space-y-4 mt-6 px-5">
+          {sortedVehicles.map((vehicle) => {
             const isActive = vehicle.id === activeVehicleId;
 
             return (
@@ -127,7 +218,6 @@ const MyGaragePage = () => {
                     : 'border-zinc-900'
                 }`}
               >
-                {/* Cabeçalho do Card: Badge e Botões de Ação */}
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     {isActive ? (
@@ -141,7 +231,6 @@ const MyGaragePage = () => {
                     )}
                   </div>
 
-                  {/* Grupo de Ações: Editar e Excluir */}
                   <div className="flex items-center gap-1.5 z-10">
                     <Link
                       href={`/my-garage/edit/${vehicle.id}`}
@@ -161,7 +250,6 @@ const MyGaragePage = () => {
                   </div>
                 </div>
 
-                {/* Corpo do Card */}
                 <div className="flex justify-between items-start">
                   <div className="space-y-4 w-full">
                     <div className="flex gap-4 items-baseline justify-between">
@@ -173,12 +261,11 @@ const MyGaragePage = () => {
                       </p>
                     </div>
 
-                    {/* Meta informações discretas (Ano, Placa e Cor opcional se cadastrada) */}
                     <div className="text-xs text-zinc-500 font-medium flex flex-wrap gap-3">
                       <span>Ano: {vehicle.year}</span>
                       <span>•</span>
                       <span className="uppercase">Placa: {vehicle.plate}</span>
-                      {vehicle.color && vehicle.color !== "N/A" && (
+                      {vehicle.color && vehicle.color !== 'N/A' && (
                         <>
                           <span>•</span>
                           <span className="capitalize">Cor: {vehicle.color}</span>
@@ -186,7 +273,6 @@ const MyGaragePage = () => {
                       )}
                     </div>
 
-                    {/* Botão de ativação ou Link para ir direto ao Logbook do carro */}
                     <div className="pt-2 border-t border-zinc-900/40">
                       {isActive ? (
                         <Link
@@ -211,9 +297,22 @@ const MyGaragePage = () => {
           })}
 
           {/* Estado de Garagem Vazia */}
-          {vehicles?.length === 0 && (
+          {vehicles.length === 0 && !isInitialLoading && (
             <div className="py-12 text-center text-zinc-600 text-sm font-medium">
-              Nenhum veículo cadastrado na sua conta ainda.
+              {search
+                ? 'Nenhum veículo encontrado com os filtros aplicados.'
+                : 'Nenhum veículo cadastrado na sua conta ainda.'}
+            </div>
+          )}
+
+          {/* Sentinel para scroll loading */}
+          {pagination?.has_next && (
+            <div ref={observerRef} className="py-4">
+              {isLoadingMore && (
+                <div className="space-y-4">
+                  <VehicleCardSkeleton />
+                </div>
+              )}
             </div>
           )}
 
@@ -229,7 +328,6 @@ const MyGaragePage = () => {
           </Link>
         </section>
       )}
-
     </div>
   );
 };

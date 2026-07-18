@@ -18,6 +18,32 @@ export const SERVICE_TYPE_BADGE_CLASSES: Record<ServiceType, string> = {
   manutencao: "bg-orange-500/15 text-orange-400",
 };
 
+export interface Vehicle {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  plate: string;
+  current_odo: number;
+  color: string;
+  renavam?: string;
+  created_at?: string;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: PaginationMeta;
+}
+
 export interface Service {
   id: string;
   vehicle_id: string;

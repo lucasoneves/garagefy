@@ -18,6 +18,7 @@ interface Vehicle {
   plate: string;
   current_odo: number;
   color: string;
+  renavam?: string;
 }
 
 const VehicleServicesPage = () => {

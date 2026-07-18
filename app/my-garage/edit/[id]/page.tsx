@@ -17,6 +17,7 @@ const EditVehiclePage = () => {
   const [plate, setPlate] = useState("");
   const [currentOdo, setCurrentOdo] = useState("");
   const [color, setColor] = useState("");
+  const [renavam, setRenavam] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +37,7 @@ const EditVehiclePage = () => {
         setPlate(data.plate || "");
         setCurrentOdo(data.current_odo ? String(data.current_odo) : "");
         setColor(data.color && data.color !== "N/A" ? data.color : "");
+        setRenavam(data.renavam || "");
       } catch (error: any) {
         console.error("Erro ao carregar dados do veículo:", error);
         alert(`Erro ao carregar dados: ${error.message}`);
@@ -64,6 +66,7 @@ const EditVehiclePage = () => {
         plate: plate.trim().toUpperCase(),
         current_odo: parseInt(currentOdo, 10) || 0,
         color: color.trim() || "N/A",
+        renavam: renavam.trim() || undefined,
       };
 
       await api.put(`/vehicles/${id}`, payload);
@@ -137,6 +140,16 @@ const EditVehiclePage = () => {
             disabled={isSubmitting}
           />
         </div>
+
+        {/* RENAVAM */}
+        <MainInput
+          label="RENAVAM"
+          type="text"
+          placeholder="Ex: 12345678901"
+          value={renavam}
+          onChange={(e) => setRenavam(e.target.value.replace(/\D/g, "").slice(0, 11))}
+          disabled={isSubmitting}
+        />
 
         {/* Color & Odometer */}
         <div className="space-y-2 w-full flex gap-4 justify-between items-start">

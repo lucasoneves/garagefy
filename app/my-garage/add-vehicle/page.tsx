@@ -15,7 +15,8 @@ const AddVehiclePage = () => {
   const [year, setYear] = useState("");
   const [plate, setPlate] = useState("");
   const [currentOdo, setCurrentOdo] = useState("");
-  const [color, setColor] = useState(""); // Adicionado campo de cor opcional que seu Go aceita
+  const [color, setColor] = useState("");
+  const [renavam, setRenavam] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,7 +33,8 @@ const AddVehiclePage = () => {
         year: parseInt(year, 10) || 0,
         plate: plate.trim().toUpperCase(),
         current_odo: parseInt(currentOdo, 10) || 0,
-        color: color.trim() || "N/A", // Evita passar nulo se não preenchido
+        color: color.trim() || "N/A",
+        renavam: renavam.trim() || undefined,
       };
 
       const res = await api.post("/vehicles", payload);
@@ -96,6 +98,16 @@ const AddVehiclePage = () => {
             disabled={isSubmitting}
           />
         </div>
+
+        {/* RENAVAM */}
+        <MainInput
+          label="RENAVAM"
+          type="text"
+          placeholder="Ex: 12345678901"
+          value={renavam}
+          onChange={(e) => setRenavam(e.target.value.replace(/\D/g, "").slice(0, 11))}
+          disabled={isSubmitting}
+        />
 
         {/* Color & Odometer */}
         <div className="space-y-2 w-full flex gap-4 justify-between items-baseline">

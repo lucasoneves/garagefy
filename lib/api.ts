@@ -17,4 +17,9 @@ api.interceptors.request.use((config) => {
 });
 
 export const swrFetcher = (url: string) =>
-  api.get(url).then((res) => res.data);
+  api.get(url).then((res) => {
+    const body = res.data;
+    if (Array.isArray(body)) return body;
+    if (body && Array.isArray(body.data)) return body.data;
+    return body;
+  });
