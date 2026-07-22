@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import useSWR from "swr";
 import { BsPlusLg } from "react-icons/bs";
+import { HiOutlineExclamationTriangle } from "react-icons/hi2";
 
 import MainCard from "@/components/MainCard";
 import MaintenanceAlert from "@/components/MaintenanceAlert";
-import MonthlySpendings from "@/components/MonthySpendings";
+import RecentOccurrences, { Occurrence } from "@/components/RecentOccurrences";
 import QuickActions from "@/components/QuickActions";
 import { swrFetcher } from "@/lib/api";
 import { Service } from "@/lib/types";
@@ -35,25 +37,35 @@ interface FuelEntry {
   date: string;
 }
 
+interface LogbookEntry {
+  id: string;
+  vehicle_id: string;
+  category: "Observation" | "Reminder" | "To-do";
+  title: string;
+  description: string;
+  created_at: string;
+}
+
 const DashboardPage = () => {
   const [vehicleId, setVehicleId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const savedId = localStorage.getItem("@garagefy:active_vehicle_id");
-    if (!savedId) {
-      swrFetcher("/vehicles").then((vehicles: Vehicle[]) => {
-        if (vehicles?.length > 0) {
-          const firstId = vehicles[0].id;
-          localStorage.setItem("@garagefy:active_vehicle_id", firstId);
-          setVehicleId(firstId);
-        }
-      });
-    } else {
-      setVehicleId(savedId);
-    }
-  }, []);
+  const { data: vehicles, isLoading: vehiclesLoading } = useSWR<Vehicle[]>("/vehicles", swrFetcher);
 
-  const { data: vehicles } = useSWR<Vehicle[]>("/vehicles", swrFetcher);
+  useEffect(() => {
+    if (!vehicles) return;
+
+    const savedId = localStorage.getItem("@garagefy:active_vehicle_id");
+    const savedExists = vehicles.some((v) => v.id === savedId);
+
+    if (savedExists) {
+      setVehicleId(savedId);
+    } else if (vehicles.length > 0) {
+      const firstId = vehicles[0].id;
+      localStorage.setItem("@garagefy:active_vehicle_id", firstId);
+      setVehicleId(firstId);
+    }
+  }, [vehicles]);
+
   const { data: fuels } = useSWR<FuelEntry[]>(
     vehicleId ? `/fuels?vehicle_id=${vehicleId}` : null,
     swrFetcher
@@ -62,44 +74,48 @@ const DashboardPage = () => {
     vehicleId ? `/services?vehicle_id=${vehicleId}` : null,
     swrFetcher
   );
+  const { data: logbookEntries } = useSWR<LogbookEntry[]>(
+    vehicleId ? `/vehicles/${vehicleId}/logbook` : null,
+    swrFetcher
+  );
 
   const activeVehicle = useMemo(
     () => vehicles?.find((v) => v.id === vehicleId) ?? null,
     [vehicles, vehicleId]
   );
 
-  const { totalSpent, dailyData } = useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    const today = now.getDate();
-
-    const dayTotals: Record<number, number> = {};
-    for (let i = 1; i <= today; i++) dayTotals[i] = 0;
-
-    (fuels ?? []).forEach((f) => {
-      const d = new Date(f.date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && d.getDate() <= today) {
-        dayTotals[d.getDate()] = (dayTotals[d.getDate()] ?? 0) + f.total_cost;
-      }
-    });
-
-    (services ?? []).forEach((s) => {
-      const d = new Date(s.service_date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && d.getDate() <= today) {
-        dayTotals[d.getDate()] = (dayTotals[d.getDate()] ?? 0) + s.cost;
-      }
-    });
-
-    const total = Object.values(dayTotals).reduce((a, b) => a + b, 0);
-
-    const dailyData = Array.from({ length: today }, (_, i) => ({
-      day: i + 1,
-      value: dayTotals[i + 1] ?? 0,
+  const recentOccurrences: Occurrence[] = useMemo(() => {
+    const serviceOccs: Occurrence[] = (services ?? []).map((s) => ({
+      id: s.id,
+      type: "service" as const,
+      title: s.title,
+      date: s.service_date,
+      cost: s.cost,
+      editUrl: `/services/edit/${s.id}`,
     }));
 
-    return { totalSpent: total, dailyData };
-  }, [fuels, services]);
+    const fuelOccs: Occurrence[] = (fuels ?? []).map((f) => ({
+      id: f.id,
+      type: "fuel" as const,
+      title: `${f.gas_station} — ${f.fuel_type}`,
+      date: f.date,
+      cost: f.total_cost,
+      editUrl: `/fuel/edit/${f.id}`,
+    }));
+
+    const logbookOccs: Occurrence[] = (logbookEntries ?? []).map((e) => ({
+      id: e.id,
+      type: "logbook" as const,
+      title: e.title,
+      date: e.created_at,
+      cost: null,
+      editUrl: `/logbook/edit/${e.id}`,
+    }));
+
+    return [...serviceOccs, ...fuelOccs, ...logbookOccs]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 3);
+  }, [fuels, services, logbookEntries]);
 
   const maintenanceMessage = useMemo(() => {
     if (!activeVehicle || !services || services.length === 0) {
@@ -116,10 +132,30 @@ const DashboardPage = () => {
     return `Próxima manutenção em ${kmUntilNext} KM`;
   }, [activeVehicle, services]);
 
-  if (!vehicleId) {
+  if (vehiclesLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center pb-24">
         <div className="size-6 border-2 border-zinc-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (vehicles && vehicles.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-6 pb-24">
+        <HiOutlineExclamationTriangle className="text-amber-500 mb-4" size={64} />
+        <h2 className="text-xl font-semibold text-center mb-2">
+          Nenhum veículo encontrado
+        </h2>
+        <p className="text-zinc-400 text-center mb-8 max-w-sm">
+          Você ainda não possui nenhum veículo cadastrado. Adicione o seu primeiro veículo para começar a usar o Garagefy.
+        </p>
+        <Link
+          href="/my-garage/add-vehicle"
+          className="px-8 py-3 bg-[#007BFF] rounded-full text-white font-medium active:scale-95 transition-transform"
+        >
+          Adicionar veículo
+        </Link>
       </div>
     );
   }
@@ -144,7 +180,7 @@ const DashboardPage = () => {
 
       {maintenanceMessage && <MaintenanceAlert message={maintenanceMessage} />}
 
-      <MonthlySpendings totalSpent={totalSpent} dailyData={dailyData} />
+      <RecentOccurrences occurrences={recentOccurrences} />
 
       <QuickActions />
 

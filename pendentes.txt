@@ -1,0 +1,43 @@
+ITENS PENDENTES - GARAGEFY
+============================
+Gerado em: 23/06/2026
+Baseado no relatorio MVP (relatorio-mvp.html)
+
+----------------
+PRIORIDADE ALTA
+----------------
+- Pagina de edicao de abastecimento: /fuel/edit/[id] nao existe,
+  mas a lista de abastecimentos linka para ela
+
+------------------
+PRIORIDADE MEDIA
+------------------
+- Dashboard usa dados estaticos: MainCard e MaintenanceAlert
+  exibem dados mockados ao inves de consumir a API
+- Settings usa dados estaticos: nome/email do usuario estao
+  hardcoded como "Alex Johnson"
+- Pagina de alterar senha: /security/change-password nao existe
+
+------------------
+PRIORIDADE BAIXA
+------------------
+- Exportar dados: link em Settings leva a /export, mas a pagina
+  nao foi criada
+- Botao FAB sem acao: botao "+" flutuante na homepage nao possui
+  manipulador onClick
+- Pagina de despesas e mock: /expenses usa dados fixos, sem
+  integracao com a API
+- Middleware nao conectado: proxy.ts esta definido mas nao foi
+  configurado no next.config.ts
+- Sem .env.example: variaveis de ambiente necessarias nao estao
+  documentadas
+- Diretorios vazios: components/Logbook/ e app/dashboard/
+  contem apenas arquivos vazios
+
+-----------
+OBSERVACOES
+-----------
+- Ha 1 stash com alteracoes WIP na pagina my-garage (selecao
+  automatica do ultimo veiculo criado)
+- Nenhum TODO/FIXME encontrado no codigo fonte
+- Nenhuma issue aberta no GitHub

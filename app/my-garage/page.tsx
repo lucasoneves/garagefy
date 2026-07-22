@@ -171,7 +171,7 @@ const MyGaragePage = () => {
       <PageNavHeader pageTitle="My Garage" />
 
       {/* Search + Filters */}
-      <div className="px-5 mt-4">
+      <div className="mt-4">
         <VehicleSearchAndFilters
           search={search}
           onSearchChange={handleSearchChange}
@@ -180,7 +180,7 @@ const MyGaragePage = () => {
 
       {/* Contador de resultados */}
       {pagination && !isInitialLoading && (
-        <div className="px-5 mt-4">
+        <div className="mt-4">
           <p className="text-xs text-zinc-600 font-medium">
             {pagination.total} {pagination.total === 1 ? 'veículo' : 'veículos'} encontrado{pagination.total === 1 ? '' : 's'}
           </p>
@@ -189,7 +189,7 @@ const MyGaragePage = () => {
 
       {/* Loading inicial */}
       {isInitialLoading && (
-        <section className="space-y-4 mt-6 px-5">
+        <section className="space-y-4 mt-6">
           <VehicleCardSkeleton />
           <VehicleCardSkeleton />
           <VehicleCardSkeleton />
@@ -205,7 +205,7 @@ const MyGaragePage = () => {
 
       {/* Lista de Veículos */}
       {!isInitialLoading && !error && (
-        <section className="space-y-4 mt-6 px-5">
+        <section className="space-y-4 mt-6">
           {sortedVehicles.map((vehicle) => {
             const isActive = vehicle.id === activeVehicleId;
 
