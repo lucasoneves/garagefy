@@ -6,7 +6,7 @@ export default function QuickActions() {
   return (
     <>
     <h3 className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-4 ml-2">
-        Quick Actions (staging)
+        Quick Actions
       </h3>
       <div className="grid grid-cols-3 gap-4 mb-8">
         <Link
